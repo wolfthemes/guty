@@ -25,11 +25,30 @@ const { serializeRawBlock } = require(serializeRawBlockPath) as {
 };
 
 function formatMarkup(value: string): string {
-  return value
+  const lines = value
     .replace(/-->\s*</g, "-->\n<")
     .replace(/>\s*<!--/g, ">\n<!--")
     .replace(/\n{3,}/g, "\n\n")
-    .trim();
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const formatted: string[] = [];
+  let indentLevel = 0;
+
+  for (const line of lines) {
+    if (line.startsWith("</")) {
+      indentLevel = Math.max(0, indentLevel - 1);
+    }
+
+    formatted.push(`${"  ".repeat(indentLevel)}${line}`);
+
+    if (/^<[^!/][^>]*>$/.test(line) && !line.startsWith("</") && !line.includes("</")) {
+      indentLevel += 1;
+    }
+  }
+
+  return formatted.join("\n");
 }
 
 function getGroupTagName(node: BlockNode): "section" | "div" {
