@@ -8,6 +8,10 @@ import { compileDocument } from "../src/compiler/compile.js";
 import { serializeDocument } from "../src/compiler/serialize.js";
 import type { BlockDocument, ElementNode } from "../src/types.js";
 
+function normalizeMarkup(value: string): string {
+  return value.replace(/>\s+</g, "><").trim();
+}
+
 describe("compileDocument", () => {
   it("compiles a minimal page into a WordPress block tree", () => {
     const page: ElementNode = {
@@ -115,7 +119,7 @@ describe("serializeDocument", () => {
       ],
     };
 
-    expect(serializeDocument(document)).toBe(
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
       '<!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} --><section class="wp-block-group"><!-- wp:group {"layout":{"type":"constrained"}} --><div class="wp-block-group"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Hello</h1><!-- /wp:heading --><!-- wp:paragraph --><p>World</p><!-- /wp:paragraph --></div><!-- /wp:group --></section><!-- /wp:group -->',
     );
   });

@@ -1,66 +1,88 @@
+import { createRequire } from "node:module";
+import path from "node:path";
+
 import type { BlockDocument, BlockNode } from "../types.js";
 
-function serializeAttrs(attrs: Record<string, unknown>): string {
-  const keys = Object.keys(attrs);
-  return keys.length === 0 ? "" : ` ${JSON.stringify(attrs)}`;
+interface RawBlockLike {
+  blockName?: string | null;
+  attrs?: Record<string, unknown>;
+  innerHTML: string;
+  innerContent: Array<string | null>;
+  innerBlocks: RawBlockLike[];
 }
 
-function renderTagName(node: BlockNode): string {
-  if (node.blockName === "core/group") {
-    return node.attrs.tagName === "section" ? "section" : "div";
-  }
+const require = createRequire(import.meta.url);
+const blocksPackagePath = require.resolve("@wordpress/blocks/package.json");
+const serializeRawBlockPath = path.join(
+  path.dirname(blocksPackagePath),
+  "build",
+  "api",
+  "parser",
+  "serialize-raw-block.cjs",
+);
+const { serializeRawBlock } = require(serializeRawBlockPath) as {
+  serializeRawBlock: (block: RawBlockLike) => string;
+};
 
-  if (node.blockName === "core/heading") {
-    const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
-    return `h${level}`;
-  }
-
-  return "p";
+function formatMarkup(value: string): string {
+  return value
+    .replace(/-->\s*</g, "-->\n<")
+    .replace(/>\s*<!--/g, ">\n<!--")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
-function renderClassName(node: BlockNode): string {
+function getGroupTagName(node: BlockNode): "section" | "div" {
+  return node.attrs.tagName === "section" ? "section" : "div";
+}
+
+function renderLeafMarkup(node: BlockNode): string {
   switch (node.blockName) {
     case "core/group":
-      return "wp-block-group";
-    case "core/heading":
-      return "wp-block-heading";
-    case "core/paragraph":
       return "";
+    case "core/heading": {
+      const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
+      return `<h${level} class="wp-block-heading">${node.innerHTML}</h${level}>`;
+    }
+    case "core/paragraph":
+      return `<p>${node.innerHTML}</p>`;
   }
 }
 
-function renderOpenTag(node: BlockNode): string {
-  const tag = renderTagName(node);
-  const className = renderClassName(node);
+function toRawBlock(node: BlockNode): RawBlockLike {
+  if (node.blockName === "core/group") {
+    const tagName = getGroupTagName(node);
+    const openTag = `<${tagName} class="wp-block-group">`;
+    const closeTag = `</${tagName}>`;
 
-  if (className === "") {
-    return `<${tag}>`;
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: `${openTag}${closeTag}`,
+      innerContent: [
+        openTag,
+        ...node.innerBlocks.flatMap((innerBlock, index) => (index === 0 ? [null] : ["", null])),
+        closeTag,
+      ],
+      innerBlocks: node.innerBlocks.map(toRawBlock),
+    };
   }
 
-  return `<${tag} class="${className}">`;
-}
+  const markup = renderLeafMarkup(node);
 
-function renderInnerHtml(node: BlockNode): string {
-  if (node.innerBlocks.length > 0) {
-    return node.innerBlocks.map(serializeBlock).join("");
-  }
-
-  return node.innerHTML;
-}
-
-function serializeBlock(node: BlockNode): string {
-  const name = node.blockName.replace("core/", "");
-  const tag = renderTagName(node);
-
-  return [
-    `<!-- wp:${name}${serializeAttrs(node.attrs)} -->`,
-    renderOpenTag(node),
-    renderInnerHtml(node),
-    `</${tag}>`,
-    `<!-- /wp:${name} -->`,
-  ].join("");
+  return {
+    blockName: node.blockName,
+    attrs: node.attrs,
+    innerHTML: markup,
+    innerContent: [markup],
+    innerBlocks: [],
+  };
 }
 
 export function serializeDocument(document: BlockDocument): string {
-  return document.blocks.map(serializeBlock).join("");
+  const markup = document.blocks
+    .map((block) => formatMarkup(serializeRawBlock(toRawBlock(block))))
+    .join("\n\n");
+
+  return `${markup}\n`;
 }
