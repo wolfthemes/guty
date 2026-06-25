@@ -1,0 +1,25 @@
+{
+  "name": "@guty/core",
+  "version": "0.1.0",
+  "description": "Compile simple TSX-like Gutenberg structures into WordPress block markup.",
+  "type": "module",
+  "bin": {
+    "guty": "./build/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "npm run build && node build/cli.js build examples --out dist",
+    "test": "vitest run"
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.4"
+  }
+}
