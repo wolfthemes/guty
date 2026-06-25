@@ -1,7 +1,5 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { readFile } from "node:fs/promises";
+import vm from "node:vm";
 import ts from "typescript";
 
 import type { ElementNode } from "../types.js";
@@ -43,7 +41,7 @@ function transpileSource(source: string, filePath: string): string {
   const wrappedSource = `${RUNTIME_PREAMBLE}\n${source}`;
   const result = ts.transpileModule(wrappedSource, {
     compilerOptions: {
-      module: ts.ModuleKind.ESNext,
+      module: ts.ModuleKind.CommonJS,
       target: ts.ScriptTarget.ES2022,
       jsx: ts.JsxEmit.React,
       jsxFactory: "createElement",
@@ -69,19 +67,17 @@ function transpileSource(source: string, filePath: string): string {
 export async function evaluateTemplate(filePath: string): Promise<ElementNode> {
   const source = await readFile(filePath, "utf8");
   const output = transpileSource(source, filePath);
-  const tempDir = await mkdtemp(path.join(tmpdir(), "guty-"));
-  const tempFile = path.join(tempDir, "template.mjs");
+  const module = { exports: {} as { default?: unknown } };
+  const context = vm.createContext({
+    module,
+    exports: module.exports,
+  });
 
-  try {
-    await writeFile(tempFile, output, "utf8");
-    const module = (await import(pathToFileURL(tempFile).href)) as { default?: unknown };
+  new vm.Script(output, { filename: filePath }).runInContext(context);
 
-    if (!module.default || typeof module.default !== "object" || !("type" in module.default)) {
-      throw new Error(`Template ${filePath} must default export a Guty page.`);
-    }
-
-    return module.default as ElementNode;
-  } finally {
-    await rm(tempDir, { recursive: true, force: true });
+  if (!module.exports.default || typeof module.exports.default !== "object" || !("type" in module.exports.default)) {
+    throw new Error(`Template ${filePath} must default export a Guty page.`);
   }
+
+  return module.exports.default as ElementNode;
 }

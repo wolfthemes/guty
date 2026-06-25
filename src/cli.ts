@@ -5,8 +5,8 @@ import path from "node:path";
 import { buildDirectory } from "./compiler/build.js";
 
 interface Args {
-  command?: string;
-  input?: string;
+  command: string | undefined;
+  input: string | undefined;
   outputDir: string;
 }
 
