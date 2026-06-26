@@ -3,7 +3,8 @@ export type ComponentType =
   | "Section"
   | "Container"
   | "Heading"
-  | "Paragraph";
+  | "Paragraph"
+  | "Pattern";
 
 export type Child = ElementNode | string;
 
@@ -14,7 +15,7 @@ export interface ElementNode {
 }
 
 export interface BlockNode {
-  blockName: "core/group" | "core/heading" | "core/paragraph";
+  blockName: "core/group" | "core/heading" | "core/paragraph" | "core/pattern";
   attrs: Record<string, unknown>;
   innerBlocks: BlockNode[];
   innerHTML: string;
@@ -26,6 +27,10 @@ export interface BlockDocument {
 
 export interface HeadingProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
+}
+
+export interface PatternProps {
+  slug: string;
 }
 
 export type ParagraphProps = Record<string, never>;

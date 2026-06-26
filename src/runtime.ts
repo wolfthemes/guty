@@ -6,6 +6,7 @@ import type {
   HeadingProps,
   PageProps,
   ParagraphProps,
+  PatternProps,
   SectionProps,
 } from "./types.js";
 
@@ -20,6 +21,7 @@ export const Section = component("Section");
 export const Container = component("Container");
 export const Heading = component("Heading");
 export const Paragraph = component("Paragraph");
+export const Pattern = component("Pattern");
 
 function normalizeChildren(input: PrimitiveChild[]): Child[] {
   const result: Child[] = [];
@@ -67,6 +69,7 @@ declare global {
       Container: ContainerProps;
       Heading: HeadingProps;
       Paragraph: ParagraphProps;
+      Pattern: PatternProps;
     }
   }
 }

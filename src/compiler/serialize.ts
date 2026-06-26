@@ -58,6 +58,7 @@ function getGroupTagName(node: BlockNode): "section" | "div" {
 function renderLeafMarkup(node: BlockNode): string {
   switch (node.blockName) {
     case "core/group":
+    case "core/pattern":
       return "";
     case "core/heading": {
       const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
@@ -69,6 +70,16 @@ function renderLeafMarkup(node: BlockNode): string {
 }
 
 function toRawBlock(node: BlockNode): RawBlockLike {
+  if (node.blockName === "core/pattern") {
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: "",
+      innerContent: [],
+      innerBlocks: [],
+    };
+  }
+
   if (node.blockName === "core/group") {
     const tagName = getGroupTagName(node);
     const openTag = `<${tagName} class="wp-block-group">`;

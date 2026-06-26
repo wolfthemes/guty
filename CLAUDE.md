@@ -68,9 +68,10 @@ generated WordPress PHP header live in `targets.ts`.
 
 ## Gotchas
 
-- The `build/` and `dist/` directories are committed generated output. `build/`
-  is the published package; `dist/` is example render output. Regenerate them
-  (`npm run build`, `npm run dev`) rather than hand-editing.
+- `build/` is gitignored generated output (the published package — see the
+  `files` field in `package.json`); regenerate with `npm run build`. `dist/` is
+  committed example render output; regenerate with `npm run dev` rather than
+  hand-editing.
 - The serializer depends on a deep internal path inside `@wordpress/blocks`
   (`build/api/parser/serialize-raw-block.cjs`). A dependency bump can move it.
 - Strict TS settings are on (`noUncheckedIndexedAccess`,

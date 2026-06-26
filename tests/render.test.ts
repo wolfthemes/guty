@@ -82,6 +82,60 @@ describe("compileDocument", () => {
   });
 });
 
+describe("Pattern", () => {
+  it("compiles a Pattern reference into a core/pattern block", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Pattern",
+          props: { slug: "guty/hero" },
+          children: [],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/pattern",
+          attrs: { slug: "guty/hero" },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
+  it("serializes a core/pattern block as a self-closing comment", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/pattern",
+          attrs: { slug: "guty/hero" },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
+      '<!-- wp:pattern {"slug":"guty/hero"} /-->',
+    );
+  });
+
+  it("requires a non-empty slug", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [{ type: "Pattern", props: {}, children: [] }],
+    };
+
+    expect(() => compileDocument(page)).toThrow(/Pattern requires a non-empty slug/);
+  });
+});
+
 describe("serializeDocument", () => {
   it("serializes a WordPress block tree into Gutenberg HTML", () => {
     const document: BlockDocument = {

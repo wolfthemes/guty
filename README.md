@@ -11,6 +11,7 @@ Supported elements:
 - `Container`
 - `Heading`
 - `Paragraph`
+- `Pattern`
 
 Example input:
 
@@ -25,6 +26,20 @@ export default (
     </Section>
   </Page>
 );
+```
+
+`Pattern` is a void element that references a registered block pattern by slug.
+Its only supported attribute is `slug` (matching the WordPress `core/pattern`
+block):
+
+```tsx
+<Pattern slug="guty/hero" />
+```
+
+compiles to:
+
+```html
+<!-- wp:pattern {"slug":"guty/hero"} /-->
 ```
 
 Native WordPress FSE content is organized by top-level directory under the chosen input root:

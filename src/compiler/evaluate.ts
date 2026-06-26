@@ -10,6 +10,7 @@ const Section = "Section";
 const Container = "Container";
 const Heading = "Heading";
 const Paragraph = "Paragraph";
+const Pattern = "Pattern";
 function normalizeChildren(input) {
   const result = [];
   for (const child of input) {

@@ -73,6 +73,24 @@ function compileNode(node: ElementNode): BlockNode {
         innerBlocks: [],
         innerHTML: expectTextChildren(node),
       };
+    case "Pattern": {
+      const slug = node.props.slug;
+
+      if (typeof slug !== "string" || slug.length === 0) {
+        throw new Error("Pattern requires a non-empty slug prop.");
+      }
+
+      if (node.children.length > 0) {
+        throw new Error("Pattern is a void block and cannot have children.");
+      }
+
+      return {
+        blockName: "core/pattern",
+        attrs: { slug },
+        innerBlocks: [],
+        innerHTML: "",
+      };
+    }
   }
 }
 
