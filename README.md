@@ -27,8 +27,25 @@ export default (
 );
 ```
 
+Native WordPress FSE content is organized by top-level directory under the chosen input root:
+
+- `templates/` -> `.html`
+- `parts/` -> `.html`
+- `patterns/` -> `.php`
+
+Example layout:
+
+```text
+examples/
+  templates/
+  parts/
+  patterns/
+```
+
 Build command:
 
 ```bash
 guty build examples --out dist
 ```
+
+This preserves the directory structure in `dist/`, so `examples/templates/front-page.guty.tsx` becomes `dist/templates/front-page.html`, while `examples/patterns/hero.guty.tsx` becomes `dist/patterns/hero.php`.
