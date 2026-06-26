@@ -1,3 +1,10 @@
+// @guty pattern
+// title: Hero
+// slug: guty/hero
+// categories: featured, banner
+// description: Compiled through the pattern target.
+// viewportWidth: 1400
+
 export default (
 	<Page>
 		<Section>

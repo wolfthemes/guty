@@ -49,3 +49,17 @@ guty build examples --out dist
 ```
 
 This preserves the directory structure in `dist/`, so `examples/templates/front-page.guty.tsx` becomes `dist/templates/front-page.html`, while `examples/patterns/hero.guty.tsx` becomes `dist/patterns/hero.php`.
+
+Pattern files must include leading Guty metadata comments before the exported TSX:
+
+```tsx
+// @guty pattern
+// title: Hero
+// slug: theme/hero
+// categories: featured, banner
+// viewportWidth: 1400
+
+export default (
+  <Page>{/* ... */}</Page>
+);
+```

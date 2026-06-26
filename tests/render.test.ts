@@ -149,8 +149,25 @@ describe("buildDirectory", () => {
 		].join("\n");
 
 		await writeFile(path.join(inputDir, "templates", "front-page.guty.tsx"), templateSource, "utf8");
-		await writeFile(path.join(inputDir, "parts", "header.guty.tsx"), templateSource, "utf8");
-		await writeFile(path.join(inputDir, "patterns", "hero.guty.tsx"), templateSource, "utf8");
+		await writeFile(
+			path.join(inputDir, "parts", "header.guty.tsx"),
+			["// @guty pattern", "// title: Ignored", "// slug: ignored/header", "", templateSource].join("\n"),
+			"utf8",
+		);
+		await writeFile(
+			path.join(inputDir, "patterns", "hero.guty.tsx"),
+			[
+				"// @guty pattern",
+				"// title: Hero",
+				"// slug: seijaku/hero",
+				"// categories: featured, banner",
+				"// description: Large hero section",
+				"// viewportWidth: 1400",
+				"",
+				templateSource,
+			].join("\n"),
+			"utf8",
+		);
 
 		try {
 			const results = await buildDirectory(inputDir, outputDir);
@@ -177,7 +194,48 @@ describe("buildDirectory", () => {
 			);
 			expect(templateHtml).toContain("<!-- wp:heading {\"level\":1} -->");
 			expect(partHtml).toContain("<p>Compiled from TSX</p>");
+			expect(partHtml).not.toContain("Title: Ignored");
+			expect(patternPhp).toContain("<?php");
+			expect(patternPhp).toContain(" * Title: Hero");
+			expect(patternPhp).toContain(" * Slug: seijaku/hero");
+			expect(patternPhp).toContain(" * Categories: featured, banner");
+			expect(patternPhp).toContain(" * Description: Large hero section");
+			expect(patternPhp).toContain(" * Viewport Width: 1400");
 			expect(patternPhp).toContain("<!-- wp:heading {\"level\":1} -->");
+		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
+
+	it("requires title and slug metadata for patterns", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const inputDir = path.join(root, "examples");
+		const outputDir = path.join(root, "dist");
+
+		await mkdir(path.join(inputDir, "patterns"), { recursive: true });
+		await writeFile(
+			path.join(inputDir, "patterns", "broken.guty.tsx"),
+			[
+				"// @guty pattern",
+				"// title: Broken Pattern",
+				"",
+				"export default (",
+				"  <Page>",
+				"    <Section>",
+				"      <Container>",
+				"        <Paragraph>Broken</Paragraph>",
+				"      </Container>",
+				"    </Section>",
+				"  </Page>",
+				");",
+			].join("\n"),
+			"utf8",
+		);
+
+		try {
+			await expect(buildDirectory(inputDir, outputDir)).rejects.toThrow(
+				/Pattern .*broken\.guty\.tsx is missing required metadata: slug\./,
+			);
 		} finally {
 			await rm(root, { recursive: true, force: true });
 		}

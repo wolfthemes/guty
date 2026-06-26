@@ -48,7 +48,7 @@ export async function buildDirectory(inputDir: string, outputDir: string): Promi
 			const document = compileDocument(page);
 			const markup = serializeDocument(document);
 			const target = resolveOutputTarget(inputDir, outputDir, templatePath);
-			const output = target.render(markup);
+			const output = await target.render(markup);
 
 			await mkdir(path.dirname(target.outputPath), { recursive: true });
 			await writeFile(target.outputPath, output, "utf8");
