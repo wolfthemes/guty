@@ -69,6 +69,14 @@ function getGroupClassName(node: BlockNode): string {
     classes.push(node.attrs.className);
   }
 
+  if (typeof node.attrs.backgroundColor === "string" && node.attrs.backgroundColor.length > 0) {
+    classes.push(`has-${node.attrs.backgroundColor}-background-color`, "has-background");
+  }
+
+  if (typeof node.attrs.textColor === "string" && node.attrs.textColor.length > 0) {
+    classes.push(`has-${node.attrs.textColor}-color`, "has-text-color");
+  }
+
   return classes.join(" ");
 }
 

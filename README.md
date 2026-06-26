@@ -13,6 +13,7 @@ Supported elements:
 - `Paragraph`
 - `Pattern`
 - `Header`
+- `SiteLogo`
 - `Navigation`
 - `NavigationLink`
 - `Button`
@@ -49,9 +50,14 @@ compiles to:
 
 `Header` is a group rendered with `tagName="header"`. Together with `Section`
 and `Container` it accepts the shared group props `className`, `align`
-(`"wide"` | `"full"`), and `layout` (passed through to the block, e.g.
+(`"wide"` | `"full"`), `backgroundColor`, `textColor`, and `layout` (passed
+through to the block, e.g.
 `{ type: "flex", justifyContent: "space-between" }`). Without a `layout` prop
 these default to `{ type: "constrained" }`.
+
+`SiteLogo` maps to `core/site-logo`. It is a void element and supports a narrow
+set of explicit props today: `className`, `width`, `isLink`, `opensInNewTab`,
+`linkTarget`, `rel`, and `shouldSyncIcon`.
 
 `Navigation` maps to `core/navigation` (`overlayMenu`, plus the shared group
 props) and contains `NavigationLink` (void; `label`, `url`, `opensInNewTab`) and
@@ -63,6 +69,7 @@ close the HTML comment) — this is expected and round-trips on parse.
 ```tsx
 <Header className="wolf-header" align="full">
   <Container layout={{ type: "flex", justifyContent: "space-between" }}>
+    <SiteLogo width={120} isLink />
     <Navigation overlayMenu="mobile">
       <NavigationLink label="Home" url="/" />
       <Button className="cta" url="/store">Browse</Button>

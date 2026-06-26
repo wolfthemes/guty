@@ -106,12 +106,14 @@ function applyBlockSugar(props: Record<string, unknown>): Record<string, unknown
 interface CommonAttrs {
   className?: string;
   align?: "wide" | "full";
+  backgroundColor?: string;
+  textColor?: string;
   layout?: Record<string, unknown>;
 }
 
 function readCommonAttrs(node: ElementNode): CommonAttrs {
   const attrs: CommonAttrs = {};
-  const { className, align, layout } = node.props;
+  const { className, align, backgroundColor, textColor, layout } = node.props;
 
   if (className !== undefined) {
     if (typeof className !== "string" || className.length === 0) {
@@ -129,6 +131,22 @@ function readCommonAttrs(node: ElementNode): CommonAttrs {
     attrs.align = align;
   }
 
+  if (backgroundColor !== undefined) {
+    if (typeof backgroundColor !== "string" || backgroundColor.length === 0) {
+      throw new Error(`${node.type} backgroundColor must be a non-empty string.`);
+    }
+
+    attrs.backgroundColor = backgroundColor;
+  }
+
+  if (textColor !== undefined) {
+    if (typeof textColor !== "string" || textColor.length === 0) {
+      throw new Error(`${node.type} textColor must be a non-empty string.`);
+    }
+
+    attrs.textColor = textColor;
+  }
+
   if (layout !== undefined) {
     if (typeof layout !== "object" || layout === null) {
       throw new Error(`${node.type} layout must be an object.`);
@@ -140,7 +158,8 @@ function readCommonAttrs(node: ElementNode): CommonAttrs {
   return attrs;
 }
 
-// Build group attrs in the fixed order tagName, className, align, layout so the
+// Build group attrs in the fixed order tagName, className, align,
+// backgroundColor, textColor, layout so the
 // serialized JSON is deterministic.
 function groupBlock(node: ElementNode, ctx: CompileContext, tagName?: "section" | "header"): BlockNode {
   const common = readCommonAttrs(node);
@@ -156,6 +175,14 @@ function groupBlock(node: ElementNode, ctx: CompileContext, tagName?: "section" 
 
   if (common.align) {
     attrs.align = common.align;
+  }
+
+  if (common.backgroundColor) {
+    attrs.backgroundColor = common.backgroundColor;
+  }
+
+  if (common.textColor) {
+    attrs.textColor = common.textColor;
   }
 
   attrs.layout = common.layout ?? { type: "constrained" };
@@ -178,6 +205,62 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       return groupBlock(node, ctx);
     case "Header":
       return groupBlock(node, ctx, "header");
+    case "SiteLogo": {
+      if (node.children.length > 0) {
+        throw new Error("SiteLogo is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+
+      const className = node.props.className;
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("SiteLogo className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
+      const width = node.props.width;
+      if (width !== undefined) {
+        if (typeof width !== "number" || !Number.isFinite(width) || width <= 0) {
+          throw new Error(`SiteLogo width must be a positive number. Received: ${String(width)}`);
+        }
+
+        attrs.width = width;
+      }
+
+      for (const key of ["isLink", "opensInNewTab", "shouldSyncIcon"] as const) {
+        const value = node.props[key];
+
+        if (value !== undefined) {
+          if (typeof value !== "boolean") {
+            throw new Error(`SiteLogo ${key} must be a boolean. Received: ${String(value)}`);
+          }
+
+          attrs[key] = value;
+        }
+      }
+
+      for (const key of ["linkTarget", "rel"] as const) {
+        const value = node.props[key];
+
+        if (value !== undefined) {
+          if (typeof value !== "string" || value.length === 0) {
+            throw new Error(`SiteLogo ${key} must be a non-empty string.`);
+          }
+
+          attrs[key] = value;
+        }
+      }
+
+      return {
+        blockName: "core/site-logo",
+        attrs,
+        innerBlocks: [],
+        innerHTML: "",
+      };
+    }
     case "Heading": {
       const level = Number(node.props.level ?? 2);
 
@@ -238,6 +321,14 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
 
       if (common.align) {
         attrs.align = common.align;
+      }
+
+      if (common.backgroundColor) {
+        attrs.backgroundColor = common.backgroundColor;
+      }
+
+      if (common.textColor) {
+        attrs.textColor = common.textColor;
       }
 
       if (common.layout) {

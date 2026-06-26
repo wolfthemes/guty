@@ -9,13 +9,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
 Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
-`Container`, `Heading`, `Paragraph`, `Pattern`, `Header`, `Navigation`,
+`Container`, `Heading`, `Paragraph`, `Pattern`, `Header`, `SiteLogo`, `Navigation`,
 `NavigationLink`, `Button`, plus the generic `Block` escape hatch for any
 registered/custom block (e.g. `wolf-store/theme-index`). Anything beyond that is
 expected to throw rather than silently degrade.
 `Section`/`Container`/`Header`/`Navigation` share the optional group props
-`className`, `align`, and `layout` (see `readCommonAttrs` / `groupBlock` in
-`compile.ts`). `Block` takes a namespaced `name` prop; all other props become
+`className`, `align`, `backgroundColor`, `textColor`, and `layout` (see
+`readCommonAttrs` / `groupBlock` in `compile.ts`). `Block` takes a namespaced
+`name` prop; all other props become
 block attributes in order. If a matching custom block is registered via
 `--blocks` / `guty.config.json`, `compile.ts` can call its real `save.js`
 through the block renderer in `src/compiler/blocks.ts`; otherwise the block
@@ -52,7 +53,8 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
 2. **compile** (`compile.ts`) — Lowers the `ElementNode` tree to a `BlockNode`
    tree (`BlockDocument`). This is where element→block mapping, validation, and
    `Block` sugar live: `Section`/`Container` → `core/group`, `Heading` →
-   `core/heading`, `Paragraph` → `core/paragraph`. `applyBlockSugar` maps
+   `core/heading`, `Paragraph` → `core/paragraph`, `SiteLogo` →
+   `core/site-logo`. `applyBlockSugar` maps
    `class` → `className`, spacing shorthands like `py` / `mt` into
    `style.spacing`, and passes the result to the block renderer when a custom
    block has been registered. Text is only allowed inside `Heading`/

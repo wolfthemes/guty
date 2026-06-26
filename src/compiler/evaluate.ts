@@ -12,6 +12,7 @@ const Heading = "Heading";
 const Paragraph = "Paragraph";
 const Pattern = "Pattern";
 const Header = "Header";
+const SiteLogo = "SiteLogo";
 const Navigation = "Navigation";
 const NavigationLink = "NavigationLink";
 const Button = "Button";

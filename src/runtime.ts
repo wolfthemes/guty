@@ -13,6 +13,7 @@ import type {
   ParagraphProps,
   PatternProps,
   SectionProps,
+  SiteLogoProps,
 } from "./types.js";
 
 type PrimitiveChild = Child | PrimitiveChild[] | number | boolean | null | undefined;
@@ -28,6 +29,7 @@ export const Heading = component("Heading");
 export const Paragraph = component("Paragraph");
 export const Pattern = component("Pattern");
 export const Header = component("Header");
+export const SiteLogo = component("SiteLogo");
 export const Navigation = component("Navigation");
 export const NavigationLink = component("NavigationLink");
 export const Button = component("Button");
@@ -81,6 +83,7 @@ declare global {
       Paragraph: ParagraphProps;
       Pattern: PatternProps;
       Header: HeaderProps;
+      SiteLogo: SiteLogoProps;
       Navigation: NavigationProps;
       NavigationLink: NavigationLinkProps;
       Button: ButtonProps;

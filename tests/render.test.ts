@@ -141,6 +141,44 @@ describe("compileDocument", () => {
       ],
     } satisfies BlockDocument);
   });
+
+  it("passes group color attrs through to core/group blocks", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Section",
+          props: {
+            className: "wolf-about wolf-section-pad--big is-dark has-texture",
+            align: "full",
+            backgroundColor: "contrast",
+            textColor: "base",
+            layout: { type: "constrained", contentSize: "var(--wp--style--global--wide-size)" },
+          },
+          children: [],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: {
+            tagName: "section",
+            className: "wolf-about wolf-section-pad--big is-dark has-texture",
+            align: "full",
+            backgroundColor: "contrast",
+            textColor: "base",
+            layout: { type: "constrained", contentSize: "var(--wp--style--global--wide-size)" },
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
 });
 
 describe("Pattern", () => {
@@ -194,6 +232,76 @@ describe("Pattern", () => {
     };
 
     expect(() => compileDocument(page)).toThrow(/Pattern requires a non-empty slug/);
+  });
+});
+
+describe("SiteLogo", () => {
+  it("compiles a SiteLogo into a core/site-logo block", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "SiteLogo",
+          props: {
+            width: 120,
+            isLink: true,
+            shouldSyncIcon: true,
+            className: "brand-mark",
+          },
+          children: [],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/site-logo",
+          attrs: {
+            className: "brand-mark",
+            width: 120,
+            isLink: true,
+            shouldSyncIcon: true,
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
+  it("serializes a SiteLogo as a self-closing site-logo block", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/site-logo",
+          attrs: { width: 120, isLink: true },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
+      '<!-- wp:site-logo {"width":120,"isLink":true} /-->',
+    );
+  });
+
+  it("requires SiteLogo to be void", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "SiteLogo",
+          props: {},
+          children: ["Logo"],
+        },
+      ],
+    };
+
+    expect(() => compileDocument(page)).toThrow(/SiteLogo is a void block/);
   });
 });
 
@@ -497,6 +605,30 @@ describe("serializeDocument", () => {
 
     expect(normalizeMarkup(serializeDocument(document))).toBe(
       '<!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} --><section class="wp-block-group"><!-- wp:group {"layout":{"type":"constrained"}} --><div class="wp-block-group"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Hello</h1><!-- /wp:heading --><!-- wp:paragraph --><p>World</p><!-- /wp:paragraph --></div><!-- /wp:group --></section><!-- /wp:group -->',
+    );
+  });
+
+  it("serializes group color attrs into block comments and wrapper classes", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: {
+            tagName: "section",
+            className: "wolf-about wolf-section-pad--big is-dark has-texture",
+            align: "full",
+            backgroundColor: "contrast",
+            textColor: "base",
+            layout: { type: "constrained", contentSize: "var(--wp--style--global--wide-size)" },
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
+      '<!-- wp:group {"tagName":"section","className":"wolf-about wolf-section-pad\\u002d\\u002dbig is-dark has-texture","align":"full","backgroundColor":"contrast","textColor":"base","layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)"}} --><section class="wp-block-group alignfull wolf-about wolf-section-pad--big is-dark has-texture has-contrast-background-color has-background has-base-color has-text-color"></section><!-- /wp:group -->',
     );
   });
 });

@@ -6,6 +6,7 @@ export type ComponentType =
   | "Paragraph"
   | "Pattern"
   | "Header"
+  | "SiteLogo"
   | "Navigation"
   | "NavigationLink"
   | "Button"
@@ -45,6 +46,8 @@ export interface BlockLayout {
 export interface CommonBlockProps {
   className?: string;
   align?: BlockAlign;
+  backgroundColor?: string;
+  textColor?: string;
   layout?: BlockLayout;
 }
 
@@ -61,6 +64,16 @@ export type ContainerProps = CommonBlockProps;
 export type SectionProps = CommonBlockProps;
 export type HeaderProps = CommonBlockProps;
 export type PageProps = Record<string, never>;
+
+export interface SiteLogoProps {
+  className?: string;
+  width?: number;
+  isLink?: boolean;
+  opensInNewTab?: boolean;
+  linkTarget?: string;
+  rel?: string;
+  shouldSyncIcon?: boolean;
+}
 
 export interface NavigationProps extends CommonBlockProps {
   overlayMenu?: "mobile" | "always" | "never";
