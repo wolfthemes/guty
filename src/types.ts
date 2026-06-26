@@ -8,7 +8,8 @@ export type ComponentType =
   | "Header"
   | "Navigation"
   | "NavigationLink"
-  | "Button";
+  | "Button"
+  | "Block";
 
 export type Child = ElementNode | string;
 
@@ -19,14 +20,9 @@ export interface ElementNode {
 }
 
 export interface BlockNode {
-  blockName:
-    | "core/group"
-    | "core/heading"
-    | "core/paragraph"
-    | "core/pattern"
-    | "core/navigation"
-    | "core/navigation-link"
-    | "core/button";
+  // Open-ended to allow arbitrary custom blocks (e.g. "wolf-store/theme-index")
+  // emitted via the generic `Block` element.
+  blockName: string;
   attrs: Record<string, unknown>;
   innerBlocks: BlockNode[];
   innerHTML: string;
@@ -81,4 +77,14 @@ export interface ButtonProps {
   className?: string;
   linkTarget?: string;
   rel?: string;
+}
+
+/**
+ * Generic escape hatch for any registered block. `name` is the namespaced block
+ * name (e.g. "wolf-store/theme-index"); every other prop becomes a block
+ * attribute, in the order written.
+ */
+export interface BlockProps {
+  name: string;
+  [attr: string]: unknown;
 }

@@ -15,6 +15,7 @@ const Header = "Header";
 const Navigation = "Navigation";
 const NavigationLink = "NavigationLink";
 const Button = "Button";
+const Block = "Block";
 function normalizeChildren(input) {
   const result = [];
   for (const child of input) {

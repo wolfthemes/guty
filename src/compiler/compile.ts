@@ -244,6 +244,32 @@ function compileNode(node: ElementNode): BlockNode {
         innerHTML,
       };
     }
+    case "Block": {
+      const name = node.props.name;
+
+      if (typeof name !== "string" || !name.includes("/")) {
+        throw new Error(
+          `Block requires a namespaced name prop (e.g. "wolf-store/theme-index"). Received: ${String(name)}`,
+        );
+      }
+
+      const attrs: Record<string, unknown> = {};
+
+      for (const [key, value] of Object.entries(node.props)) {
+        if (key === "name" || value === undefined) {
+          continue;
+        }
+
+        attrs[key] = value;
+      }
+
+      return {
+        blockName: name,
+        attrs,
+        innerBlocks: compileChildren(node.children),
+        innerHTML: "",
+      };
+    }
   }
 }
 

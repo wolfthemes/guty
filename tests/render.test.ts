@@ -194,6 +194,64 @@ describe("Header / Navigation / Button", () => {
   });
 });
 
+describe("Block (generic custom blocks)", () => {
+  it("serializes a void custom block with inline-prop attributes", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+    const filePath = path.join(root, "index.guty.tsx");
+
+    await writeFile(
+      filePath,
+      [
+        "<Page>",
+        '  <Block name="wolf-store/theme-index" perPage={12} pagination="none" orderby="featured" order="DESC" cardHeading="h2" />',
+        "</Page>",
+      ].join("\n"),
+      "utf8",
+    );
+
+    try {
+      const page = await evaluateTemplate(filePath);
+      const markup = normalizeMarkup(serializeDocument(compileDocument(page)));
+
+      expect(markup).toBe(
+        '<!-- wp:wolf-store/theme-index {"perPage":12,"pagination":"none","orderby":"featured","order":"DESC","cardHeading":"h2"} /-->',
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("serializes a custom block with children as a wrapperless container", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Block",
+          props: { name: "wolf-store/grid", columns: 3 },
+          children: [
+            { type: "Block", props: { name: "wolf-store/card", id: 1 }, children: [] },
+          ],
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(compileDocument(page)))).toBe(
+      '<!-- wp:wolf-store/grid {"columns":3} --><!-- wp:wolf-store/card {"id":1} /--><!-- /wp:wolf-store/grid -->',
+    );
+  });
+
+  it("requires a namespaced name", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [{ type: "Block", props: { name: "theme-index" }, children: [] }],
+    };
+
+    expect(() => compileDocument(page)).toThrow(/Block requires a namespaced name/);
+  });
+});
+
 describe("serializeDocument", () => {
   it("serializes a WordPress block tree into Gutenberg HTML", () => {
     const document: BlockDocument = {

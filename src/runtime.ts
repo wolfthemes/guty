@@ -1,4 +1,5 @@
 import type {
+  BlockProps,
   ButtonProps,
   Child,
   ComponentType,
@@ -30,6 +31,7 @@ export const Header = component("Header");
 export const Navigation = component("Navigation");
 export const NavigationLink = component("NavigationLink");
 export const Button = component("Button");
+export const Block = component("Block");
 
 function normalizeChildren(input: PrimitiveChild[]): Child[] {
   const result: Child[] = [];
@@ -82,6 +84,7 @@ declare global {
       Navigation: NavigationProps;
       NavigationLink: NavigationLinkProps;
       Button: ButtonProps;
+      Block: BlockProps;
     }
   }
 }

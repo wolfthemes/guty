@@ -16,6 +16,7 @@ Supported elements:
 - `Navigation`
 - `NavigationLink`
 - `Button`
+- `Block` (generic escape hatch for any registered block)
 
 Example input:
 
@@ -69,6 +70,38 @@ close the HTML comment) — this is expected and round-trips on parse.
   </Container>
 </Header>
 ```
+
+`Block` is the generic escape hatch for any registered block that doesn't have a
+dedicated element (including third-party blocks like `wolf-store/*`). The `name`
+prop is the namespaced block name; every other prop becomes a block attribute,
+in the order written. No children renders a self-closing block; children render
+a wrapperless container:
+
+```tsx
+<Block name="wolf-store/theme-index" perPage={12} pagination="none" orderby="featured" />
+```
+
+compiles to:
+
+```html
+<!-- wp:wolf-store/theme-index {"perPage":12,"pagination":"none","orderby":"featured"} /-->
+```
+
+```tsx
+<Block name="wolf-store/grid" columns={3}>
+  <Block name="wolf-store/card" id={1} />
+</Block>
+```
+
+compiles to:
+
+```html
+<!-- wp:wolf-store/grid {"columns":3} -->
+<!-- wp:wolf-store/card {"id":1} /-->
+<!-- /wp:wolf-store/grid -->
+```
+
+(`name` is reserved and never emitted as an attribute.)
 
 Native WordPress FSE content is organized by top-level directory under the chosen input root:
 

@@ -10,10 +10,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
 Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
 `Container`, `Heading`, `Paragraph`, `Pattern`, `Header`, `Navigation`,
-`NavigationLink`, `Button`. Anything beyond that is expected to throw rather
-than silently degrade. `Section`/`Container`/`Header`/`Navigation` share the
-optional group props `className`, `align`, and `layout` (see `readCommonAttrs` /
-`groupBlock` in `compile.ts`).
+`NavigationLink`, `Button`, plus the generic `Block` escape hatch for any
+registered/custom block (e.g. `wolf-store/theme-index`). Anything beyond that is
+expected to throw rather than silently degrade.
+`Section`/`Container`/`Header`/`Navigation` share the optional group props
+`className`, `align`, and `layout` (see `readCommonAttrs` / `groupBlock` in
+`compile.ts`). `Block` takes a namespaced `name` prop; all other props become
+block attributes in order.
 
 Note: this package lives inside the larger `wolf-store-docker` workspace but is a
 standalone tool — its remote is `git@github.com:wolfthemes/guty.git`.
@@ -49,8 +52,12 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
    **not** hand-write the `<!-- wp:* -->` comments: it builds a raw-block shape
    and calls `serializeRawBlock` resolved by path out of the installed
    `@wordpress/blocks` package internals. `formatMarkup` then re-indents the
-   output. Leaf HTML (`<h2 class="wp-block-heading">`, `<p>`) is produced in
-   `renderLeafMarkup`.
+   output. `toRawBlock` routes blocks three ways: `core/group` (HTML wrapper),
+   HTML-leaf blocks (`HTML_LEAF_BLOCKS` → `renderLeafMarkup`, e.g.
+   `<h2 class="wp-block-heading">`, `<p>`), and everything else as a
+   **comment-only block** — void when it has no inner blocks (`core/pattern`,
+   `core/navigation-link`, void custom blocks), or a wrapperless container
+   otherwise (`core/navigation`, custom blocks with children).
 4. **targets** (`targets.ts`) — Decides the output path and post-processing based
    on the **top-level directory** of the input file relative to the input root:
    `templates/` → `.html`, `parts/` → `.html`, `patterns/` → `.php`. Patterns are

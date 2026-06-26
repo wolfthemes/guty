@@ -72,13 +72,11 @@ function getGroupClassName(node: BlockNode): string {
   return classes.join(" ");
 }
 
+// Blocks whose saved markup is HTML emitted by the block itself.
+const HTML_LEAF_BLOCKS = new Set(["core/heading", "core/paragraph", "core/button"]);
+
 function renderLeafMarkup(node: BlockNode): string {
   switch (node.blockName) {
-    case "core/group":
-    case "core/pattern":
-    case "core/navigation":
-    case "core/navigation-link":
-      return "";
     case "core/heading": {
       const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
       return `<h${level} class="wp-block-heading">${node.innerHTML}</h${level}>`;
@@ -87,35 +85,12 @@ function renderLeafMarkup(node: BlockNode): string {
       return `<p>${node.innerHTML}</p>`;
     case "core/button":
       return node.innerHTML;
+    default:
+      return "";
   }
 }
 
 function toRawBlock(node: BlockNode): RawBlockLike {
-  // Void blocks: self-closing comment with no inner content.
-  if (node.blockName === "core/pattern" || node.blockName === "core/navigation-link") {
-    return {
-      blockName: node.blockName,
-      attrs: node.attrs,
-      innerHTML: "",
-      innerContent: [],
-      innerBlocks: [],
-    };
-  }
-
-  // Navigation is a dynamic block: it saves only its inner blocks, with no
-  // wrapping HTML in the post content.
-  if (node.blockName === "core/navigation") {
-    return {
-      blockName: node.blockName,
-      attrs: node.attrs,
-      innerHTML: "",
-      innerContent: node.innerBlocks.flatMap((innerBlock, index) =>
-        index === 0 ? [null] : ["", null],
-      ),
-      innerBlocks: node.innerBlocks.map(toRawBlock),
-    };
-  }
-
   if (node.blockName === "core/group") {
     const tagName = getGroupTagName(node);
     const className = getGroupClassName(node);
@@ -135,14 +110,39 @@ function toRawBlock(node: BlockNode): RawBlockLike {
     };
   }
 
-  const markup = renderLeafMarkup(node);
+  if (HTML_LEAF_BLOCKS.has(node.blockName)) {
+    const markup = renderLeafMarkup(node);
+
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: markup,
+      innerContent: [markup],
+      innerBlocks: [],
+    };
+  }
+
+  // Comment-only blocks (core/pattern, core/navigation, core/navigation-link,
+  // and any custom block from <Block />): no HTML wrapper. Void when there are
+  // no inner blocks, otherwise a container holding its inner blocks.
+  if (node.innerBlocks.length === 0) {
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: "",
+      innerContent: [],
+      innerBlocks: [],
+    };
+  }
 
   return {
     blockName: node.blockName,
     attrs: node.attrs,
-    innerHTML: markup,
-    innerContent: [markup],
-    innerBlocks: [],
+    innerHTML: "",
+    innerContent: node.innerBlocks.flatMap((innerBlock, index) =>
+      index === 0 ? [null] : ["", null],
+    ),
+    innerBlocks: node.innerBlocks.map(toRawBlock),
   };
 }
 
