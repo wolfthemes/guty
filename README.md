@@ -103,6 +103,21 @@ compiles to:
 
 (`name` is reserved and never emitted as an attribute.)
 
+For a block that ships its own static save markup (e.g. `wolf-blocks/marquee`),
+pass that markup as a single string child — it is emitted verbatim between the
+block comments:
+
+```tsx
+<Block name="wolf-blocks/marquee" direction="left">
+  {`<div class="wp-block-wolf-blocks-marquee">…</div>`}
+</Block>
+```
+
+A string child (raw HTML) and element children (inner blocks) cannot be mixed.
+Note WordPress escapes `<`, `>`, `&`, `"`, and `--` to unicode escapes inside the
+block-comment attribute JSON (e.g. `<` becomes `<`, `"` becomes `"`)
+to keep the comment valid; this is expected and round-trips on parse.
+
 Native WordPress FSE content is organized by top-level directory under the chosen input root:
 
 - `templates/` -> `.html`
@@ -134,8 +149,14 @@ Pattern files must include leading Guty metadata comments before the exported TS
 // slug: theme/hero
 // categories: featured, banner
 // viewportWidth: 1400
+// package: ThemeName
 
 export default (
   <Page>{/* ... */}</Page>
 );
 ```
+
+Supported metadata keys: `title` and `slug` (required), plus `description`,
+`categories`, `keywords`, `viewportWidth`, `inserter`, and `package`. All render
+as `Label: value` docblock lines except `package`, which renders as a
+`@package` tag preceded by a blank line (WordPress convention).

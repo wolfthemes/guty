@@ -16,7 +16,9 @@ expected to throw rather than silently degrade.
 `Section`/`Container`/`Header`/`Navigation` share the optional group props
 `className`, `align`, and `layout` (see `readCommonAttrs` / `groupBlock` in
 `compile.ts`). `Block` takes a namespaced `name` prop; all other props become
-block attributes in order.
+block attributes in order. A single string child of `Block` is emitted verbatim
+as the block's raw static save markup (for blocks like `wolf-blocks/marquee`
+that ship their own HTML); raw HTML and child blocks cannot be mixed.
 
 Note: this package lives inside the larger `wolf-store-docker` workspace but is a
 standalone tool — its remote is `git@github.com:wolfthemes/guty.git`.
@@ -73,8 +75,9 @@ arg parser over `buildDirectory`.
 Files under `patterns/` must begin with a `// @guty pattern` directive followed
 by `key: value` comment lines. Allowed keys are fixed in `PATTERN_HEADER_FIELDS`
 (`title`, `slug`, `description`, `categories`, `keywords`, `viewportWidth`,
-`inserter`); `title` and `slug` are required. Parsing/validation and the
-generated WordPress PHP header live in `targets.ts`.
+`inserter`, `package`); `title` and `slug` are required. Most render as
+`Label: value` docblock lines; `package` renders as a `@package` tag.
+Parsing/validation and the generated WordPress PHP header live in `targets.ts`.
 
 ## Gotchas
 

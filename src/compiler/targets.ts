@@ -19,6 +19,7 @@ const PATTERN_HEADER_FIELDS = [
 	"keywords",
 	"viewportWidth",
 	"inserter",
+	"package",
 ] as const;
 
 type PatternHeaderField = (typeof PATTERN_HEADER_FIELDS)[number];
@@ -31,6 +32,7 @@ interface PatternMetadata {
 	keywords?: string;
 	viewportWidth?: string;
 	inserter?: string;
+	package?: string;
 }
 
 const HEADER_LABELS: Record<PatternHeaderField, string> = {
@@ -41,6 +43,7 @@ const HEADER_LABELS: Record<PatternHeaderField, string> = {
 	keywords: "Keywords",
 	viewportWidth: "Viewport Width",
 	inserter: "Inserter",
+	package: "@package",
 };
 
 function isPatternHeaderField(value: string): value is PatternHeaderField {
@@ -113,11 +116,20 @@ function parsePatternMetadata(source: string, filePath: string): PatternMetadata
 
 function renderPatternHeader(metadata: PatternMetadata): string {
 	const lines = PATTERN_HEADER_FIELDS.flatMap((field) => {
+		if (field === "package") {
+			return [];
+		}
+
 		const value = metadata[field];
 		return value ? [` * ${HEADER_LABELS[field]}: ${value}`] : [];
 	});
 
-	return ["<?php", "/**", ...lines, " */", "?>"].join("\n");
+	// @package follows the docblock-tag convention: a blank line, then the tag.
+	if (metadata.package) {
+		lines.push(" *", ` * @package ${metadata.package}`);
+	}
+
+	return ["<?php", "/**", ...lines, " */", "", "?>"].join("\n");
 }
 
 async function renderPattern(markup: string, templatePath: string): Promise<string> {

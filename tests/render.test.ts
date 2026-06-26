@@ -241,6 +241,40 @@ describe("Block (generic custom blocks)", () => {
     );
   });
 
+  it("emits a string child as verbatim raw save markup", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Block",
+          props: { name: "wolf-blocks/marquee", direction: "left" },
+          children: ['<div class="wp-block-wolf-blocks-marquee"><span>Hi</span></div>'],
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(compileDocument(page)))).toBe(
+      '<!-- wp:wolf-blocks/marquee {"direction":"left"} --><div class="wp-block-wolf-blocks-marquee"><span>Hi</span></div><!-- /wp:wolf-blocks/marquee -->',
+    );
+  });
+
+  it("rejects mixing raw HTML with child blocks", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Block",
+          props: { name: "wolf-store/grid" },
+          children: ["<div>", { type: "Block", props: { name: "wolf-store/card" }, children: [] }],
+        },
+      ],
+    };
+
+    expect(() => compileDocument(page)).toThrow(/cannot mix raw HTML with child blocks/);
+  });
+
   it("requires a namespaced name", () => {
     const page: ElementNode = {
       type: "Page",
@@ -428,6 +462,38 @@ describe("buildDirectory", () => {
 			expect(patternPhp).toContain(" * Description: Large hero section");
 			expect(patternPhp).toContain(" * Viewport Width: 1400");
 			expect(patternPhp).toContain("<!-- wp:heading {\"level\":1} -->");
+		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
+
+	it("renders an @package docblock tag in the pattern header", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const inputDir = path.join(root, "examples");
+		const outputDir = path.join(root, "dist");
+
+		await mkdir(path.join(inputDir, "patterns"), { recursive: true });
+		await writeFile(
+			path.join(inputDir, "patterns", "marquee.guty.tsx"),
+			[
+				"// @guty pattern",
+				"// title: Marquee",
+				"// slug: seijaku-fse/marquee",
+				"// categories: banner",
+				"// package: SeijakuFSE",
+				"",
+				'<Page><Block name="wolf-blocks/marquee" direction="left">{`<div>hi</div>`}</Block></Page>',
+			].join("\n"),
+			"utf8",
+		);
+
+		try {
+			await buildDirectory(inputDir, outputDir);
+			const php = await readFile(path.join(outputDir, "patterns", "marquee.php"), "utf8");
+
+			expect(php).toContain(" * Categories: banner\n *\n * @package SeijakuFSE\n */\n\n?>");
+			expect(php).toContain('<!-- wp:wolf-blocks/marquee {"direction":"left"} -->');
+			expect(php).toContain("<div>hi</div>");
 		} finally {
 			await rm(root, { recursive: true, force: true });
 		}

@@ -122,6 +122,18 @@ function toRawBlock(node: BlockNode): RawBlockLike {
     };
   }
 
+  // A custom block carrying its own static save markup (raw HTML body from a
+  // <Block> string child): emit the markup verbatim between the comments.
+  if (node.innerHTML !== "") {
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: node.innerHTML,
+      innerContent: [node.innerHTML],
+      innerBlocks: [],
+    };
+  }
+
   // Comment-only blocks (core/pattern, core/navigation, core/navigation-link,
   // and any custom block from <Block />): no HTML wrapper. Void when there are
   // no inner blocks, otherwise a container holding its inner blocks.

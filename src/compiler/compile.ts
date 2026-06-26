@@ -263,6 +263,24 @@ function compileNode(node: ElementNode): BlockNode {
         attrs[key] = value;
       }
 
+      // A string child is the block's raw static save markup, emitted verbatim
+      // (not escaped). Element children compile to inner blocks. The two cannot
+      // be mixed.
+      const hasRawHtml = node.children.some((child) => typeof child === "string");
+
+      if (hasRawHtml) {
+        if (!node.children.every((child) => typeof child === "string")) {
+          throw new Error(`Block ${name} cannot mix raw HTML with child blocks.`);
+        }
+
+        return {
+          blockName: name,
+          attrs,
+          innerBlocks: [],
+          innerHTML: node.children.join(""),
+        };
+      }
+
       return {
         blockName: name,
         attrs,

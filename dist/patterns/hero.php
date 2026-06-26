@@ -6,6 +6,7 @@
  * Categories: featured, banner
  * Viewport Width: 1400
  */
+
 ?>
 
 <!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} -->
