@@ -16,9 +16,12 @@ expected to throw rather than silently degrade.
 `Section`/`Container`/`Header`/`Navigation` share the optional group props
 `className`, `align`, and `layout` (see `readCommonAttrs` / `groupBlock` in
 `compile.ts`). `Block` takes a namespaced `name` prop; all other props become
-block attributes in order. A single string child of `Block` is emitted verbatim
-as the block's raw static save markup (for blocks like `wolf-blocks/marquee`
-that ship their own HTML); raw HTML and child blocks cannot be mixed.
+block attributes in order. If a matching custom block is registered via
+`--blocks` / `guty.config.json`, `compile.ts` can call its real `save.js`
+through the block renderer in `src/compiler/blocks.ts`; otherwise the block
+falls back to the old comment-only behavior. A single string child of `Block`
+is emitted verbatim as the block's raw static save markup and overrides the
+real-save path; raw HTML and child blocks cannot be mixed.
 
 Note: this package lives inside the larger `wolf-store-docker` workspace but is a
 standalone tool — its remote is `git@github.com:wolfthemes/guty.git`.
@@ -30,7 +33,8 @@ standalone tool — its remote is `git@github.com:wolfthemes/guty.git`.
 - `npm test` — runs the `vitest` suite once.
 - `npx vitest run tests/render.test.ts -t "<name>"` — run a single test by name.
 - `npm run dev` — rebuild, then regenerate `examples/` → `dist/`.
-- `node build/cli.js build <input-dir> --out <output-dir>` — direct CLI use.
+- `node build/cli.js build <input-dir> --out <output-dir> [--blocks <dir>]...`
+  — direct CLI use, optionally loading custom blocks from source trees.
 
 ## Compile pipeline
 
@@ -46,9 +50,12 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
    `normalizeTemplateSource` also lets a file omit `export default` and just be a
    bare TSX expression (leading comments/blank lines are preserved as prefix).
 2. **compile** (`compile.ts`) — Lowers the `ElementNode` tree to a `BlockNode`
-   tree (`BlockDocument`). This is where element→block mapping and validation
-   live: `Section`/`Container` → `core/group`, `Heading` → `core/heading`,
-   `Paragraph` → `core/paragraph`. Text is only allowed inside `Heading`/
+   tree (`BlockDocument`). This is where element→block mapping, validation, and
+   `Block` sugar live: `Section`/`Container` → `core/group`, `Heading` →
+   `core/heading`, `Paragraph` → `core/paragraph`. `applyBlockSugar` maps
+   `class` → `className`, spacing shorthands like `py` / `mt` into
+   `style.spacing`, and passes the result to the block renderer when a custom
+   block has been registered. Text is only allowed inside `Heading`/
    `Paragraph`; the root must be `<Page>`.
 3. **serialize** (`serialize.ts`) — Emits Gutenberg block-comment markup. It does
    **not** hand-write the `<!-- wp:* -->` comments: it builds a raw-block shape
@@ -65,6 +72,14 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
    `templates/` → `.html`, `parts/` → `.html`, `patterns/` → `.php`. Patterns are
    wrapped with a generated PHP header parsed from leading `// @guty pattern`
    metadata comments (see below). Any other top-level dir is an error.
+
+`src/compiler/blocks.ts` is the custom-block bridge. It scans `--blocks`
+directories for `block.json` + sibling `save.js`, transpiles `save.js` through
+the shared TS helper, and executes it in a `vm` with shims for
+`@wordpress/block-editor` (`useBlockProps.save`) and `@wordpress/i18n`. The
+`useBlockProps.save` shim intentionally implements only a subset of WordPress
+supports today: default `wp-block-*` classes, `className`, `align`, spacing,
+and typography-derived classes/styles.
 
 `src/types.ts` defines the two trees (`ElementNode` source AST, `BlockNode`
 target AST). `src/index.ts` is the public export surface; `src/cli.ts` is a thin

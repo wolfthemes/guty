@@ -1,5 +1,10 @@
 import type { BlockDocument, BlockNode, Child, ElementNode } from "../types.js";
 
+export interface CompileContext {
+  // Renders a registered custom block's real save markup; undefined if unknown.
+  renderBlock?: (name: string, attributes: Record<string, unknown>) => string | undefined;
+}
+
 function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -19,14 +24,83 @@ function expectTextChildren(node: ElementNode): string {
     .join("");
 }
 
-function compileChildren(children: Child[]): BlockNode[] {
+function compileChildren(children: Child[], ctx: CompileContext): BlockNode[] {
   return children.map((child) => {
     if (typeof child === "string") {
       throw new Error("Text nodes are only allowed inside Heading and Paragraph in the MVP.");
     }
 
-    return compileNode(child);
+    return compileNode(child, ctx);
   });
+}
+
+const SPACING_SUGAR: Record<string, { axis: "padding" | "margin"; sides: readonly string[] }> = {
+  p: { axis: "padding", sides: ["top", "right", "bottom", "left"] },
+  py: { axis: "padding", sides: ["top", "bottom"] },
+  px: { axis: "padding", sides: ["left", "right"] },
+  pt: { axis: "padding", sides: ["top"] },
+  pb: { axis: "padding", sides: ["bottom"] },
+  pl: { axis: "padding", sides: ["left"] },
+  pr: { axis: "padding", sides: ["right"] },
+  m: { axis: "margin", sides: ["top", "right", "bottom", "left"] },
+  my: { axis: "margin", sides: ["top", "bottom"] },
+  mx: { axis: "margin", sides: ["left", "right"] },
+  mt: { axis: "margin", sides: ["top"] },
+  mb: { axis: "margin", sides: ["bottom"] },
+  ml: { axis: "margin", sides: ["left"] },
+  mr: { axis: "margin", sides: ["right"] },
+};
+
+// Bare integers map to the theme spacing preset scale; explicit values pass through.
+function spacingValue(value: unknown): string {
+  return /^\d+$/.test(String(value)) ? `var:preset|spacing|${value}` : String(value);
+}
+
+/**
+ * Resolve <Block> convenience props into real block attributes: `class` →
+ * `className`, `p*`/`m*` → `style.spacing.{padding|margin}`. Returns the block
+ * attribute object (excludes `name` and the sugar keys).
+ */
+function applyBlockSugar(props: Record<string, unknown>): Record<string, unknown> {
+  const attrs: Record<string, unknown> = {};
+  const spacing: { padding?: Record<string, string>; margin?: Record<string, string> } = {};
+  let className: string | undefined;
+
+  for (const [key, value] of Object.entries(props)) {
+    if (key === "name" || value === undefined) {
+      continue;
+    }
+
+    if (key === "class" || key === "className") {
+      className = className ? `${className} ${String(value)}` : String(value);
+      continue;
+    }
+
+    const sugar = SPACING_SUGAR[key];
+    if (sugar) {
+      for (const side of sugar.sides) {
+        (spacing[sugar.axis] ??= {})[side] = spacingValue(value);
+      }
+      continue;
+    }
+
+    attrs[key] = value;
+  }
+
+  if (className !== undefined) {
+    attrs.className = className;
+  }
+
+  if (spacing.padding || spacing.margin) {
+    const baseStyle = attrs.style && typeof attrs.style === "object" ? { ...(attrs.style as object) } : {};
+    const baseSpacing =
+      "spacing" in baseStyle && typeof (baseStyle as Record<string, unknown>).spacing === "object"
+        ? { ...((baseStyle as Record<string, unknown>).spacing as object) }
+        : {};
+    attrs.style = { ...baseStyle, spacing: { ...baseSpacing, ...spacing } };
+  }
+
+  return attrs;
 }
 
 interface CommonAttrs {
@@ -68,7 +142,7 @@ function readCommonAttrs(node: ElementNode): CommonAttrs {
 
 // Build group attrs in the fixed order tagName, className, align, layout so the
 // serialized JSON is deterministic.
-function groupBlock(node: ElementNode, tagName?: "section" | "header"): BlockNode {
+function groupBlock(node: ElementNode, ctx: CompileContext, tagName?: "section" | "header"): BlockNode {
   const common = readCommonAttrs(node);
   const attrs: Record<string, unknown> = {};
 
@@ -89,21 +163,21 @@ function groupBlock(node: ElementNode, tagName?: "section" | "header"): BlockNod
   return {
     blockName: "core/group",
     attrs,
-    innerBlocks: compileChildren(node.children),
+    innerBlocks: compileChildren(node.children, ctx),
     innerHTML: "",
   };
 }
 
-function compileNode(node: ElementNode): BlockNode {
+function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
   switch (node.type) {
     case "Page":
       throw new Error("Page nodes must be compiled through compileDocument.");
     case "Section":
-      return groupBlock(node, "section");
+      return groupBlock(node, ctx, "section");
     case "Container":
-      return groupBlock(node);
+      return groupBlock(node, ctx);
     case "Header":
-      return groupBlock(node, "header");
+      return groupBlock(node, ctx, "header");
     case "Heading": {
       const level = Number(node.props.level ?? 2);
 
@@ -173,7 +247,7 @@ function compileNode(node: ElementNode): BlockNode {
       return {
         blockName: "core/navigation",
         attrs,
-        innerBlocks: compileChildren(node.children),
+        innerBlocks: compileChildren(node.children, ctx),
         innerHTML: "",
       };
     }
@@ -253,19 +327,11 @@ function compileNode(node: ElementNode): BlockNode {
         );
       }
 
-      const attrs: Record<string, unknown> = {};
-
-      for (const [key, value] of Object.entries(node.props)) {
-        if (key === "name" || value === undefined) {
-          continue;
-        }
-
-        attrs[key] = value;
-      }
+      const attrs = applyBlockSugar(node.props);
 
       // A string child is the block's raw static save markup, emitted verbatim
-      // (not escaped). Element children compile to inner blocks. The two cannot
-      // be mixed.
+      // (not escaped) — an explicit override. Element children compile to inner
+      // blocks. The two cannot be mixed.
       const hasRawHtml = node.children.some((child) => typeof child === "string");
 
       if (hasRawHtml) {
@@ -281,22 +347,34 @@ function compileNode(node: ElementNode): BlockNode {
         };
       }
 
+      // A registered block renders its real WordPress save markup.
+      const rendered = ctx.renderBlock?.(name, attrs);
+
+      if (rendered !== undefined) {
+        return {
+          blockName: name,
+          attrs,
+          innerBlocks: [],
+          innerHTML: rendered,
+        };
+      }
+
       return {
         blockName: name,
         attrs,
-        innerBlocks: compileChildren(node.children),
+        innerBlocks: compileChildren(node.children, ctx),
         innerHTML: "",
       };
     }
   }
 }
 
-export function compileDocument(node: ElementNode): BlockDocument {
+export function compileDocument(node: ElementNode, ctx: CompileContext = {}): BlockDocument {
   if (node.type !== "Page") {
     throw new Error("The root element must be <Page>.");
   }
 
   return {
-    blocks: compileChildren(node.children),
+    blocks: compileChildren(node.children, ctx),
   };
 }

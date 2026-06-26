@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
-import ts from "typescript";
 
 import type { ElementNode } from "../types.js";
+import { transpileToCjs } from "./transpile.js";
 
 const RUNTIME_PREAMBLE = `
 const Page = "Page";
@@ -75,29 +75,7 @@ function normalizeTemplateSource(source: string): string {
 function transpileSource(source: string, filePath: string): string {
   const normalizedSource = normalizeTemplateSource(source);
   const wrappedSource = `${RUNTIME_PREAMBLE}\n${normalizedSource}`;
-  const result = ts.transpileModule(wrappedSource, {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2022,
-      jsx: ts.JsxEmit.React,
-      jsxFactory: "createElement",
-      strict: true,
-    },
-    fileName: filePath,
-    reportDiagnostics: true,
-  });
-
-  if (result.diagnostics?.length) {
-    const message = ts.formatDiagnosticsWithColorAndContext(result.diagnostics, {
-      getCanonicalFileName: (value) => value,
-      getCurrentDirectory: () => process.cwd(),
-      getNewLine: () => "\n",
-    });
-
-    throw new Error(`Failed to transpile ${filePath}\n${message}`);
-  }
-
-  return result.outputText;
+  return transpileToCjs(wrappedSource, filePath);
 }
 
 export async function evaluateTemplate(filePath: string): Promise<ElementNode> {

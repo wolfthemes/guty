@@ -86,5 +86,24 @@ export interface ButtonProps {
  */
 export interface BlockProps {
   name: string;
+  class?: string;
+  className?: string;
+  align?: BlockAlign;
+  fontSize?: string;
+  fontFamily?: string;
+  p?: string | number;
+  px?: string | number;
+  py?: string | number;
+  pt?: string | number;
+  pr?: string | number;
+  pb?: string | number;
+  pl?: string | number;
+  m?: string | number;
+  mx?: string | number;
+  my?: string | number;
+  mt?: string | number;
+  mr?: string | number;
+  mb?: string | number;
+  ml?: string | number;
   [attr: string]: unknown;
 }

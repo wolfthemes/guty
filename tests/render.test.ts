@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { loadBlockRegistry, renderBlockSave } from "../src/compiler/blocks.js";
 import { buildDirectory } from "../src/compiler/build.js";
 import { compileDocument } from "../src/compiler/compile.js";
 import { evaluateTemplate } from "../src/compiler/evaluate.js";
@@ -11,6 +12,66 @@ import type { BlockDocument, ElementNode } from "../src/types.js";
 
 function normalizeMarkup(value: string): string {
   return value.replace(/>\s+</g, "><").trim();
+}
+
+async function createFixtureBlockSource(root: string): Promise<string> {
+  const blockDir = path.join(root, "fixture-blocks", "marquee");
+  await mkdir(blockDir, { recursive: true });
+
+  await writeFile(
+    path.join(blockDir, "block.json"),
+    JSON.stringify(
+      {
+        name: "test-suite/marquee",
+        attributes: {
+          text: { type: "string", default: "" },
+          direction: { type: "string", default: "left" },
+          animationDuration: { type: "number", default: 12 },
+          className: { type: "string" },
+          align: { type: "string" },
+          fontSize: { type: "string" },
+          fontFamily: { type: "string" },
+          style: { type: "object" },
+        },
+        supports: {
+          align: ["wide", "full"],
+          className: true,
+          spacing: { margin: true, padding: true },
+          typography: { fontSize: true, fontFamily: true },
+        },
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+
+  await writeFile(
+    path.join(blockDir, "save.js"),
+    [
+      'import { useBlockProps } from "@wordpress/block-editor";',
+      "",
+      "export default function save({ attributes }) {",
+      "  const blockProps = useBlockProps.save({",
+      '    className: "fixture-marquee",',
+      '    style: { "--fixture-duration": `${attributes.animationDuration}s` },',
+      "  });",
+      "",
+      "  return (",
+      "    <div {...blockProps}>",
+      '      <div className={`fixture-track fixture-track--${attributes.direction}`}>',
+      "        {Array.from({ length: 2 }).map((_, index) => (",
+      '          <span key={index} className="fixture-item" dangerouslySetInnerHTML={{ __html: attributes.text ?? "" }} />',
+      "        ))}",
+      "      </div>",
+      "    </div>",
+      "  );",
+      "}",
+    ].join("\n"),
+    "utf8",
+  );
+
+  return path.join(root, "fixture-blocks");
 }
 
 describe("compileDocument", () => {
@@ -259,6 +320,116 @@ describe("Block (generic custom blocks)", () => {
     );
   });
 
+  it("renders a registered block through its real save function", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+
+    try {
+      const blockSource = await createFixtureBlockSource(root);
+      const registry = await loadBlockRegistry([blockSource]);
+      const entry = registry.get("test-suite/marquee");
+
+      expect(entry).toBeDefined();
+
+      const html = renderBlockSave(entry!, {
+        text: 'Wolf<span class="accent">Themes</span>',
+        direction: "left",
+        animationDuration: 30,
+        className: "my-class",
+        align: "full",
+        fontSize: "large",
+        fontFamily: "fancy",
+        style: {
+          spacing: {
+            margin: { top: "var:preset|spacing|40" },
+            padding: { top: "2rem", bottom: "2rem" },
+          },
+          typography: {
+            fontStyle: "italic",
+          },
+        },
+      });
+
+      expect(html).toContain(
+        'class="wp-block-test-suite-marquee fixture-marquee my-class alignfull has-large-font-size has-font-size has-fancy-font-family"',
+      );
+      expect(html).toContain(
+        'style="--fixture-duration:30s;margin-top:var(--wp--preset--spacing--40);padding-top:2rem;padding-bottom:2rem;font-style:italic"',
+      );
+      expect(html).toContain('<div class="fixture-track fixture-track--left">');
+      expect(html).toContain('<span class="fixture-item">Wolf<span class="accent">Themes</span></span>');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("maps block sugar before rendering and escapes comment attrs the WordPress way", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+
+    try {
+      const blockSource = await createFixtureBlockSource(root);
+      const registry = await loadBlockRegistry([blockSource]);
+      const page: ElementNode = {
+        type: "Page",
+        props: {},
+        children: [
+          {
+            type: "Block",
+            props: {
+              name: "test-suite/marquee",
+              text: 'Wolf<span class="accent">Themes</span>',
+              direction: "left",
+              animationDuration: 30,
+              class: "my-class",
+              py: "2rem",
+              mt: 40,
+              align: "full",
+            },
+            children: [],
+          },
+        ],
+      };
+
+      const captured: Record<string, unknown>[] = [];
+      const document = compileDocument(page, {
+        renderBlock: (name, attrs) => {
+          const entry = registry.get(name);
+          if (!entry) {
+            return undefined;
+          }
+
+          captured.push(attrs);
+          return renderBlockSave(entry, attrs);
+        },
+      });
+      const markup = normalizeMarkup(serializeDocument(document));
+
+      expect(captured).toEqual([
+        {
+          text: 'Wolf<span class="accent">Themes</span>',
+          direction: "left",
+          animationDuration: 30,
+          className: "my-class",
+          style: {
+            spacing: {
+              padding: { top: "2rem", bottom: "2rem" },
+              margin: { top: "var:preset|spacing|40" },
+            },
+          },
+          align: "full",
+        },
+      ]);
+      expect(markup).toContain('<!-- wp:test-suite/marquee {"text":"Wolf\\u003cspan class=\\u0022accent\\u0022\\u003eThemes\\u003c/span\\u003e"');
+      expect(markup).toContain('"animationDuration":30');
+      expect(markup).toContain('"align":"full"');
+      expect(markup).toContain('"className":"my-class"');
+      expect(markup).toContain('"margin":{"top":"var:preset|spacing|40"}');
+      expect(markup).toContain('"padding":{"top":"2rem","bottom":"2rem"}');
+      expect(markup).toContain('<span class="fixture-item">Wolf<span class="accent">Themes</span></span>');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("rejects mixing raw HTML with child blocks", () => {
     const page: ElementNode = {
       type: "Page",
@@ -494,6 +665,45 @@ describe("buildDirectory", () => {
 			expect(php).toContain(" * Categories: banner\n *\n * @package SeijakuFSE\n */\n\n?>");
 			expect(php).toContain('<!-- wp:wolf-blocks/marquee {"direction":"left"} -->');
 			expect(php).toContain("<div>hi</div>");
+		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
+
+	it("renders registered blocks from block sources and falls back for unknown names", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const inputDir = path.join(root, "examples");
+		const outputDir = path.join(root, "dist");
+
+		await mkdir(path.join(inputDir, "patterns"), { recursive: true });
+		const blockSource = await createFixtureBlockSource(root);
+		await writeFile(
+			path.join(inputDir, "patterns", "marquee.guty.tsx"),
+			[
+				"// @guty pattern",
+				"// title: Marquee",
+				"// slug: test-suite/marquee",
+				"",
+				"export default (",
+				"  <Page>",
+				'    <Block name="test-suite/marquee" text={`Wolf<span>Theme</span>`} direction="left" animationDuration={30} class="my-class" mt={40} />',
+				'    <Block name="test-suite/unregistered" foo="bar" />',
+				"  </Page>",
+				");",
+			].join("\n"),
+			"utf8",
+		);
+
+		try {
+			await buildDirectory(inputDir, outputDir, { blockSources: [blockSource] });
+			const php = await readFile(path.join(outputDir, "patterns", "marquee.php"), "utf8");
+
+			expect(php).toContain('<!-- wp:test-suite/marquee {"text":"Wolf\\u003cspan\\u003eTheme\\u003c/span\\u003e","direction":"left","animationDuration":30,"className":"my-class","style":{"spacing":{"margin":{"top":"var:preset|spacing|40"}}}} -->');
+			expect(php).toContain(
+				'<div class="wp-block-test-suite-marquee fixture-marquee my-class" style="--fixture-duration:30s;margin-top:var(--wp--preset--spacing--40)">',
+			);
+			expect(php).toContain('<span class="fixture-item">Wolf<span>Theme</span></span>');
+			expect(php).toContain('<!-- wp:test-suite/unregistered {"foo":"bar"} /-->');
 		} finally {
 			await rm(root, { recursive: true, force: true });
 		}

@@ -103,9 +103,57 @@ compiles to:
 
 (`name` is reserved and never emitted as an attribute.)
 
-For a block that ships its own static save markup (e.g. `wolf-blocks/marquee`),
-pass that markup as a single string child — it is emitted verbatim between the
-block comments:
+For blocks with a real `save.js`, Guty can render the actual WordPress save
+output instead of requiring pasted HTML. Point the CLI at one or more block
+source roots that contain `block.json` + sibling `save.js` files:
+
+```bash
+guty build examples --out dist --blocks ../../plugins/wolf-blocks/src
+```
+
+You can also set block roots in `guty.config.json` in either the current
+working directory or the input root:
+
+```json
+{
+  "blocks": ["../../plugins/wolf-blocks/src"]
+}
+```
+
+Then author the block with attributes only:
+
+```tsx
+<Block
+  name="wolf-blocks/marquee"
+  text="WolfThemes <span>Premium</span>"
+  direction="left"
+  animationDuration={30}
+  class="my-class"
+  py={40}
+/>
+```
+
+When the block is registered, Guty executes its real `save` function in Node,
+renders it through `@wordpress/element`, and emits that markup between the
+`<!-- wp:* -->` comments. A raw HTML string child still wins as an explicit
+override/fallback, and unregistered blocks keep the current self-closing or
+wrapperless-container behavior.
+
+`Block` also supports a small amount of attribute sugar before serialization:
+
+- `class` merges into `className`
+- `p`, `px`, `py`, `pt`, `pr`, `pb`, `pl` map to `style.spacing.padding.*`
+- `m`, `mx`, `my`, `mt`, `mr`, `mb`, `ml` map to `style.spacing.margin.*`
+- bare numeric spacing values become `var:preset|spacing|N`
+- `align`, `fontSize`, and `fontFamily` pass through as block attributes
+
+The `useBlockProps.save` shim currently covers a documented subset of WordPress
+supports: default `wp-block-*` classes, custom `className`, `align`, spacing,
+and typography-derived classes/styles. Less common supports may need adding as
+new blocks require them.
+
+If you want to bypass real-save rendering entirely, pass a single raw HTML
+string child — it is emitted verbatim between the block comments:
 
 ```tsx
 <Block name="wolf-blocks/marquee" direction="left">
@@ -115,8 +163,8 @@ block comments:
 
 A string child (raw HTML) and element children (inner blocks) cannot be mixed.
 Note WordPress escapes `<`, `>`, `&`, `"`, and `--` to unicode escapes inside the
-block-comment attribute JSON (e.g. `<` becomes `<`, `"` becomes `"`)
-to keep the comment valid; this is expected and round-trips on parse.
+block-comment attribute JSON to keep the comment valid; this is expected and
+round-trips on parse.
 
 Native WordPress FSE content is organized by top-level directory under the chosen input root:
 

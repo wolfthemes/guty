@@ -1,6 +1,7 @@
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { createBlockRenderer, loadBlockRegistry } from "./blocks.js";
 import { compileDocument } from "./compile.js";
 import { evaluateTemplate } from "./evaluate.js";
 import { serializeDocument } from "./serialize.js";
@@ -35,17 +36,29 @@ export interface BuildResult {
 	target: OutputTargetKind;
 }
 
-export async function buildDirectory(inputDir: string, outputDir: string): Promise<BuildResult[]> {
+export interface BuildOptions {
+	// Directories scanned for custom block sources (block.json + save.js).
+	blockSources?: string[];
+}
+
+export async function buildDirectory(
+	inputDir: string,
+	outputDir: string,
+	options: BuildOptions = {},
+): Promise<BuildResult[]> {
 	const templates = await collectTemplates(inputDir);
 
 	if (templates.length === 0) {
 		throw new Error(`No ${TEMPLATE_EXTENSION} files found in ${inputDir}.`);
 	}
 
+	const registry = await loadBlockRegistry(options.blockSources ?? []);
+	const renderBlock = createBlockRenderer(registry);
+
 	return Promise.all(
 		templates.map(async (templatePath) => {
 			const page = await evaluateTemplate(templatePath);
-			const document = compileDocument(page);
+			const document = compileDocument(page, { renderBlock });
 			const markup = serializeDocument(document);
 			const target = resolveOutputTarget(inputDir, outputDir, templatePath);
 			const output = await target.render(markup);
