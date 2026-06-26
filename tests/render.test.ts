@@ -167,10 +167,10 @@ describe("compileDocument", () => {
           blockName: "core/group",
           attrs: {
             tagName: "section",
-            className: "wolf-about wolf-section-pad--big is-dark has-texture",
-            align: "full",
             backgroundColor: "contrast",
             textColor: "base",
+            className: "wolf-about wolf-section-pad--big is-dark has-texture",
+            align: "full",
             layout: { type: "constrained", contentSize: "var(--wp--style--global--wide-size)" },
           },
           innerBlocks: [],
@@ -230,6 +230,68 @@ describe("compileDocument", () => {
             },
           },
           innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
+  it("compiles columns and column wrappers with their supported attrs", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Columns",
+          props: { verticalAlignment: "center" },
+          children: [
+            {
+              type: "Column",
+              props: { width: "60%", className: "wolf-about__main" },
+              children: [
+                {
+                  type: "Heading",
+                  props: { level: 2, className: "wolf-about__title" },
+                  children: ["Hello"],
+                },
+                {
+                  type: "Paragraph",
+                  props: { className: "wolf-about__text" },
+                  children: ["World"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/columns",
+          attrs: { verticalAlignment: "center" },
+          innerBlocks: [
+            {
+              blockName: "core/column",
+              attrs: { className: "wolf-about__main", width: "60%" },
+              innerBlocks: [
+                {
+                  blockName: "core/heading",
+                  attrs: { className: "wolf-about__title" },
+                  innerBlocks: [],
+                  innerHTML: "Hello",
+                },
+                {
+                  blockName: "core/paragraph",
+                  attrs: { className: "wolf-about__text" },
+                  innerBlocks: [],
+                  innerHTML: "World",
+                },
+              ],
+              innerHTML: "",
+            },
+          ],
           innerHTML: "",
         },
       ],
@@ -671,10 +733,10 @@ describe("serializeDocument", () => {
           blockName: "core/group",
           attrs: {
             tagName: "section",
-            className: "wolf-about wolf-section-pad--big is-dark has-texture",
-            align: "full",
             backgroundColor: "contrast",
             textColor: "base",
+            className: "wolf-about wolf-section-pad--big is-dark has-texture",
+            align: "full",
             layout: { type: "constrained", contentSize: "var(--wp--style--global--wide-size)" },
           },
           innerBlocks: [],
@@ -684,7 +746,7 @@ describe("serializeDocument", () => {
     };
 
     expect(normalizeMarkup(serializeDocument(document))).toBe(
-      '<!-- wp:group {"tagName":"section","className":"wolf-about wolf-section-pad\\u002d\\u002dbig is-dark has-texture","align":"full","backgroundColor":"contrast","textColor":"base","layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)"}} --><section class="wp-block-group alignfull wolf-about wolf-section-pad--big is-dark has-texture has-contrast-background-color has-background has-base-color has-text-color"></section><!-- /wp:group -->',
+      '<!-- wp:group {"tagName":"section","backgroundColor":"contrast","textColor":"base","className":"wolf-about wolf-section-pad\\u002d\\u002dbig is-dark has-texture","align":"full","layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)"}} --><section class="wp-block-group alignfull has-contrast-background-color has-background has-base-color has-text-color wolf-about wolf-section-pad--big is-dark has-texture"></section><!-- /wp:group -->',
     );
   });
 
@@ -723,6 +785,37 @@ describe("serializeDocument", () => {
 
     expect(normalizeMarkup(serializeDocument(document))).toBe(
       '<!-- wp:group {"tagName":"article","fontSize":"base","fontFamily":"serif","style":{"typography":{"textAlign":"center"},"spacing":{"padding":{"top":"var:preset|spacing|40","left":"2rem","right":"2rem"}}},"layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)","orientation":"horizontal"}} --><article class="wp-block-group has-base-font-size has-font-size has-serif-font-family" style="padding-top:var(--wp--preset--spacing--40);padding-right:2rem;padding-left:2rem;text-align:center"></article><!-- /wp:group -->',
+    );
+  });
+
+  it("serializes columns, column widths, and text block classes", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/columns",
+          attrs: { verticalAlignment: "center" },
+          innerBlocks: [
+            {
+              blockName: "core/column",
+              attrs: { className: "wolf-about__main", width: "60%" },
+              innerBlocks: [
+                {
+                  blockName: "core/paragraph",
+                  attrs: { className: "wolf-about__text" },
+                  innerBlocks: [],
+                  innerHTML: "World",
+                },
+              ],
+              innerHTML: "",
+            },
+          ],
+          innerHTML: "",
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
+      '<!-- wp:columns {"verticalAlignment":"center"} --><div class="wp-block-columns are-vertically-aligned-center"><!-- wp:column {"className":"wolf-about__main","width":"60%"} --><div class="wp-block-column wolf-about__main" style="flex-basis:60%"><!-- wp:paragraph {"className":"wolf-about__text"} --><p class="wolf-about__text">World</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->',
     );
   });
 });
@@ -930,6 +1023,59 @@ describe("buildDirectory", () => {
 			);
 			expect(php).toContain('<span class="fixture-item">Wolf<span>Theme</span></span>');
 			expect(php).toContain('<!-- wp:test-suite/unregistered {"foo":"bar"} /-->');
+		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
+
+	it("builds an about pattern using native columns and text classes", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const inputDir = path.join(root, "examples");
+		const outputDir = path.join(root, "dist");
+
+		await mkdir(path.join(inputDir, "patterns"), { recursive: true });
+		await writeFile(
+			path.join(inputDir, "patterns", "about.guty.tsx"),
+			[
+				"// @guty pattern",
+				"// title: About",
+				"// slug: seijaku-fse/home-about",
+				"// categories: about",
+				"// package: SeijakuFSE",
+				"",
+				"<Page>",
+				'  <Section tagName="section" backgroundColor="base-2" className="wolf-about wolf-section-pad--big " align="full" layoutType="constrained" layoutContentSize="var(--wp--style--global--wide-size)">',
+				'    <Columns verticalAlignment="center">',
+				'      <Column width="60%" className="wolf-about__main">',
+				'        <Paragraph className="wolf-about__eyebrow wolf-eyebrow">The person behind the code</Paragraph>',
+				'        <Heading level={2} className="wolf-about__title">I\'m Constantin. For 14 years, I\'ve been the only person writing every line of WolfThemes.</Heading>',
+				'        <Paragraph className="wolf-about__text">No agency, no rotating dev team, no outsourced support tickets. Every theme here started as a real problem someone brought to me: a band needing a tour page, a label needing a catalogue that didn\'t feel like a spreadsheet.</Paragraph>',
+				'        <Paragraph className="wolf-about__text">When you reach out, you\'re talking to the person who built the theme, not a queue. That\'s the whole reason I started selling direct.</Paragraph>',
+				"      </Column>",
+				'      <Column width="40%" className="wolf-about__pullquote">',
+				'        <Block name="core/paragraph">{`14 years.<br>36,000 customers.<br>4.5/5 out of 1600+ ratings.<br>One person who still answers the emails.`}</Block>',
+				"      </Column>",
+				"    </Columns>",
+				"  </Section>",
+				"</Page>",
+			].join("\n"),
+			"utf8",
+		);
+
+		try {
+			await buildDirectory(inputDir, outputDir);
+			const php = await readFile(path.join(outputDir, "patterns", "about.php"), "utf8");
+
+			expect(php).toContain(" * Title: About");
+			expect(php).toContain('<!-- wp:group {"tagName":"section"');
+			expect(php).toContain('"backgroundColor":"base-2"');
+			expect(php).toContain('"className":"wolf-about wolf-section-pad\\u002d\\u002dbig "');
+			expect(php).toContain('<section class="wp-block-group alignfull has-base-2-background-color has-background wolf-about wolf-section-pad--big ">');
+			expect(php).toContain('<!-- wp:columns {"verticalAlignment":"center"} -->');
+			expect(php).toContain('<div class="wp-block-columns are-vertically-aligned-center">');
+			expect(php).toContain('<!-- wp:column {"className":"wolf-about__main","width":"60%"} -->');
+			expect(php).toContain('<h2 class="wp-block-heading wolf-about__title">I\'m Constantin.');
+			expect(php).toContain('<p>14 years.<br>36,000 customers.<br>4.5/5 out of 1600+ ratings.<br>One person who still answers the emails.</p>');
 		} finally {
 			await rm(root, { recursive: true, force: true });
 		}

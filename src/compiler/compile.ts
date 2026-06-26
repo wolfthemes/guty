@@ -284,20 +284,20 @@ function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: str
     attrs.tagName = tagName;
   }
 
-  if (common.className) {
-    attrs.className = common.className;
-  }
-
-  if (common.align) {
-    attrs.align = common.align;
-  }
-
   if (common.backgroundColor) {
     attrs.backgroundColor = common.backgroundColor;
   }
 
   if (common.textColor) {
     attrs.textColor = common.textColor;
+  }
+
+  if (common.className) {
+    attrs.className = common.className;
+  }
+
+  if (common.align) {
+    attrs.align = common.align;
   }
 
   if (common.fontSize) {
@@ -322,6 +322,18 @@ function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: str
   };
 }
 
+function readVerticalAlignment(node: ElementNode, prop: unknown): "top" | "center" | "bottom" | undefined {
+  if (prop === undefined) {
+    return undefined;
+  }
+
+  if (prop !== "top" && prop !== "center" && prop !== "bottom") {
+    throw new Error(`${node.type} verticalAlignment must be "top", "center", or "bottom". Received: ${String(prop)}`);
+  }
+
+  return prop;
+}
+
 function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
   switch (node.type) {
     case "Page":
@@ -330,6 +342,63 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       return groupBlock(node, ctx, "section");
     case "Container":
       return groupBlock(node, ctx);
+    case "Columns": {
+      const attrs: Record<string, unknown> = {};
+      const className = node.props.className;
+
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("Columns className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
+      const verticalAlignment = readVerticalAlignment(node, node.props.verticalAlignment);
+      if (verticalAlignment) {
+        attrs.verticalAlignment = verticalAlignment;
+      }
+
+      return {
+        blockName: "core/columns",
+        attrs,
+        innerBlocks: compileChildren(node.children, ctx),
+        innerHTML: "",
+      };
+    }
+    case "Column": {
+      const attrs: Record<string, unknown> = {};
+      const className = node.props.className;
+
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("Column className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
+      const width = node.props.width;
+      if (width !== undefined) {
+        if (typeof width !== "string" || width.length === 0) {
+          throw new Error("Column width must be a non-empty string.");
+        }
+
+        attrs.width = width;
+      }
+
+      const verticalAlignment = readVerticalAlignment(node, node.props.verticalAlignment);
+      if (verticalAlignment) {
+        attrs.verticalAlignment = verticalAlignment;
+      }
+
+      return {
+        blockName: "core/column",
+        attrs,
+        innerBlocks: compileChildren(node.children, ctx),
+        innerHTML: "",
+      };
+    }
     case "Header":
       return groupBlock(node, ctx, "header");
     case "SiteLogo": {
@@ -395,20 +464,41 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         throw new Error(`Heading level must be an integer from 1 to 6. Received: ${String(node.props.level)}`);
       }
 
+      const attrs: Record<string, unknown> = level === 2 ? {} : { level };
+      const className = node.props.className;
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("Heading className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
       return {
         blockName: "core/heading",
-        attrs: level === 2 ? {} : { level },
+        attrs,
         innerBlocks: [],
         innerHTML: expectTextChildren(node),
       };
     }
-    case "Paragraph":
+    case "Paragraph": {
+      const attrs: Record<string, unknown> = {};
+      const className = node.props.className;
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("Paragraph className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
       return {
         blockName: "core/paragraph",
-        attrs: {},
+        attrs,
         innerBlocks: [],
         innerHTML: expectTextChildren(node),
       };
+    }
     case "Pattern": {
       const slug = node.props.slug;
 

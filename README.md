@@ -9,6 +9,8 @@ Supported elements:
 - `Page`
 - `Section`
 - `Container`
+- `Columns`
+- `Column`
 - `Heading`
 - `Paragraph`
 - `Pattern`
@@ -69,6 +71,10 @@ The shared native group props also include:
 `SiteLogo` maps to `core/site-logo`. It is a void element and supports a narrow
 set of explicit props today: `className`, `width`, `isLink`, `opensInNewTab`,
 `linkTarget`, `rel`, and `shouldSyncIcon`.
+
+`Columns` maps to `core/columns` and `Column` maps to `core/column`.
+`Columns` supports `className` and `verticalAlignment`. `Column` supports
+`className`, `width`, and `verticalAlignment`.
 
 `Navigation` maps to `core/navigation` (`overlayMenu`, plus the shared group
 props) and contains `NavigationLink` (void; `label`, `url`, `opensInNewTab`) and

@@ -2,6 +2,8 @@ export type ComponentType =
   | "Page"
   | "Section"
   | "Container"
+  | "Columns"
+  | "Column"
   | "Heading"
   | "Paragraph"
   | "Pattern"
@@ -75,13 +77,16 @@ export interface CommonBlockProps {
 
 export interface HeadingProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
+  className?: string;
 }
 
 export interface PatternProps {
   slug: string;
 }
 
-export type ParagraphProps = Record<string, never>;
+export interface ParagraphProps {
+  className?: string;
+}
 export interface GroupBlockProps extends CommonBlockProps {
   tagName?: string;
 }
@@ -103,6 +108,17 @@ export interface SiteLogoProps {
 
 export interface NavigationProps extends CommonBlockProps {
   overlayMenu?: "mobile" | "always" | "never";
+}
+
+export interface ColumnsProps {
+  className?: string;
+  verticalAlignment?: "top" | "center" | "bottom";
+}
+
+export interface ColumnProps {
+  className?: string;
+  width?: string;
+  verticalAlignment?: "top" | "center" | "bottom";
 }
 
 export interface NavigationLinkProps {

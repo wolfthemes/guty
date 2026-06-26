@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
 Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
-`Container`, `Heading`, `Paragraph`, `Pattern`, `Header`, `SiteLogo`, `Navigation`,
+`Container`, `Columns`, `Column`, `Heading`, `Paragraph`, `Pattern`, `Header`, `SiteLogo`, `Navigation`,
 `NavigationLink`, `Button`, plus the generic `Block` escape hatch for any
 registered/custom block (e.g. `wolf-store/theme-index`). Anything beyond that is
 expected to throw rather than silently degrade.
@@ -53,7 +53,7 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
 2. **compile** (`compile.ts`) — Lowers the `ElementNode` tree to a `BlockNode`
    tree (`BlockDocument`). This is where element→block mapping, validation, and
    `Block` sugar live: `Section`/`Container` → `core/group`, `Heading` →
-   `core/heading`, `Paragraph` → `core/paragraph`, `SiteLogo` →
+   `core/columns`, `Column` → `core/column`, `core/heading`, `Paragraph` → `core/paragraph`, `SiteLogo` →
    `core/site-logo`. `readCommonAttrs` also handles native group sugar:
    `textAlign`, `fontSize`, `fontFamily`, `layoutType`,
    `layoutContentSize`, `layoutOrientation`, and spacing shorthands like `py`

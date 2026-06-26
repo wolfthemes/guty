@@ -51,7 +51,7 @@ function formatMarkup(value: string): string {
   return formatted.join("\n");
 }
 
-function getGroupTagName(node: BlockNode): "section" | "header" | "div" {
+function getGroupTagName(node: BlockNode): string {
   const tagName = node.attrs.tagName;
   return typeof tagName === "string" && tagName.length > 0 ? (tagName as "section" | "header" | "div") : "div";
 }
@@ -81,10 +81,6 @@ function getGroupClassName(node: BlockNode): string {
     classes.push("alignfull");
   }
 
-  if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
-    classes.push(node.attrs.className);
-  }
-
   if (typeof node.attrs.backgroundColor === "string" && node.attrs.backgroundColor.length > 0) {
     classes.push(`has-${node.attrs.backgroundColor}-background-color`, "has-background");
   }
@@ -99,6 +95,10 @@ function getGroupClassName(node: BlockNode): string {
 
   if (typeof node.attrs.fontFamily === "string" && node.attrs.fontFamily.length > 0) {
     classes.push(`has-${node.attrs.fontFamily}-font-family`);
+  }
+
+  if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
+    classes.push(node.attrs.className);
   }
 
   return classes.join(" ");
@@ -146,15 +146,60 @@ function renderLeafMarkup(node: BlockNode): string {
   switch (node.blockName) {
     case "core/heading": {
       const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
-      return `<h${level} class="wp-block-heading">${node.innerHTML}</h${level}>`;
+      const classes = ["wp-block-heading"];
+      if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
+        classes.push(node.attrs.className);
+      }
+      return `<h${level} class="${classes.join(" ")}">${node.innerHTML}</h${level}>`;
     }
-    case "core/paragraph":
-      return `<p>${node.innerHTML}</p>`;
+    case "core/paragraph": {
+      const classAttr =
+        typeof node.attrs.className === "string" && node.attrs.className.length > 0
+          ? ` class="${node.attrs.className}"`
+          : "";
+      return `<p${classAttr}>${node.innerHTML}</p>`;
+    }
     case "core/button":
       return node.innerHTML;
     default:
       return "";
   }
+}
+
+function getColumnsClassName(node: BlockNode): string {
+  const classes = ["wp-block-columns"];
+
+  if (node.attrs.verticalAlignment === "top") {
+    classes.push("are-vertically-aligned-top");
+  } else if (node.attrs.verticalAlignment === "center") {
+    classes.push("are-vertically-aligned-center");
+  } else if (node.attrs.verticalAlignment === "bottom") {
+    classes.push("are-vertically-aligned-bottom");
+  }
+
+  if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
+    classes.push(node.attrs.className);
+  }
+
+  return classes.join(" ");
+}
+
+function getColumnClassName(node: BlockNode): string {
+  const classes = ["wp-block-column"];
+
+  if (node.attrs.verticalAlignment === "top") {
+    classes.push("is-vertically-aligned-top");
+  } else if (node.attrs.verticalAlignment === "center") {
+    classes.push("is-vertically-aligned-center");
+  } else if (node.attrs.verticalAlignment === "bottom") {
+    classes.push("is-vertically-aligned-bottom");
+  }
+
+  if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
+    classes.push(node.attrs.className);
+  }
+
+  return classes.join(" ");
 }
 
 function toRawBlock(node: BlockNode): RawBlockLike {
@@ -165,6 +210,46 @@ function toRawBlock(node: BlockNode): RawBlockLike {
     const styleAttr = style ? ` style="${style}"` : "";
     const openTag = `<${tagName} class="${className}"${styleAttr}>`;
     const closeTag = `</${tagName}>`;
+
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: `${openTag}${closeTag}`,
+      innerContent: [
+        openTag,
+        ...node.innerBlocks.flatMap((innerBlock, index) => (index === 0 ? [null] : ["", null])),
+        closeTag,
+      ],
+      innerBlocks: node.innerBlocks.map(toRawBlock),
+    };
+  }
+
+  if (node.blockName === "core/columns") {
+    const className = getColumnsClassName(node);
+    const openTag = `<div class="${className}">`;
+    const closeTag = `</div>`;
+
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: `${openTag}${closeTag}`,
+      innerContent: [
+        openTag,
+        ...node.innerBlocks.flatMap((innerBlock, index) => (index === 0 ? [null] : ["", null])),
+        closeTag,
+      ],
+      innerBlocks: node.innerBlocks.map(toRawBlock),
+    };
+  }
+
+  if (node.blockName === "core/column") {
+    const className = getColumnClassName(node);
+    const styleAttr =
+      typeof node.attrs.width === "string" && node.attrs.width.length > 0
+        ? ` style="flex-basis:${node.attrs.width}"`
+        : "";
+    const openTag = `<div class="${className}"${styleAttr}>`;
+    const closeTag = `</div>`;
 
     return {
       blockName: node.blockName,
