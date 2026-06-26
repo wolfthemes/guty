@@ -37,8 +37,38 @@ function createElement(type, props, ...children) {
 }
 `;
 
+function normalizeTemplateSource(source: string): string {
+  if (/\bexport\s+default\b/.test(source)) {
+    return source;
+  }
+
+  const lines = source.split(/\r?\n/);
+  let index = 0;
+
+  while (index < lines.length) {
+    const trimmed = lines[index].trim();
+
+    if (trimmed.length === 0 || trimmed.startsWith("//")) {
+      index += 1;
+      continue;
+    }
+
+    break;
+  }
+
+  const prefix = lines.slice(0, index).join("\n");
+  const body = lines.slice(index).join("\n").trim();
+
+  if (!body) {
+    return source;
+  }
+
+  return [prefix, `export default (${body});`].filter((value) => value.length > 0).join("\n");
+}
+
 function transpileSource(source: string, filePath: string): string {
-  const wrappedSource = `${RUNTIME_PREAMBLE}\n${source}`;
+  const normalizedSource = normalizeTemplateSource(source);
+  const wrappedSource = `${RUNTIME_PREAMBLE}\n${normalizedSource}`;
   const result = ts.transpileModule(wrappedSource, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildDirectory } from "../src/compiler/build.js";
 import { compileDocument } from "../src/compiler/compile.js";
+import { evaluateTemplate } from "../src/compiler/evaluate.js";
 import { serializeDocument } from "../src/compiler/serialize.js";
 import type { BlockDocument, ElementNode } from "../src/types.js";
 
@@ -123,6 +124,61 @@ describe("serializeDocument", () => {
       '<!-- wp:group {"tagName":"section","layout":{"type":"constrained"}} --><section class="wp-block-group"><!-- wp:group {"layout":{"type":"constrained"}} --><div class="wp-block-group"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Hello</h1><!-- /wp:heading --><!-- wp:paragraph --><p>World</p><!-- /wp:paragraph --></div><!-- /wp:group --></section><!-- /wp:group -->',
     );
   });
+});
+
+describe("evaluateTemplate", () => {
+	it("accepts bare TSX without export default", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const filePath = path.join(root, "bare.guty.tsx");
+
+		await writeFile(
+			filePath,
+			[
+				"<Page>",
+				"  <Section>",
+				"    <Container>",
+				"      <Heading level={1}>Hello</Heading>",
+				"      <Paragraph>World</Paragraph>",
+				"    </Container>",
+				"  </Section>",
+				"</Page>",
+			].join("\n"),
+			"utf8",
+		);
+
+		try {
+			await expect(evaluateTemplate(filePath)).resolves.toEqual({
+				type: "Page",
+				props: {},
+				children: [
+					{
+						type: "Section",
+						props: {},
+						children: [
+							{
+								type: "Container",
+								props: {},
+								children: [
+									{
+										type: "Heading",
+										props: { level: 1 },
+										children: ["Hello"],
+									},
+									{
+										type: "Paragraph",
+										props: {},
+										children: ["World"],
+									},
+								],
+							},
+						],
+					},
+				],
+			} satisfies ElementNode);
+		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
 });
 
 describe("buildDirectory", () => {
