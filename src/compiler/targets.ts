@@ -54,7 +54,7 @@ function parsePatternMetadata(source: string, filePath: string): PatternMetadata
 	let index = 0;
 
 	while (index < lines.length) {
-		const line = lines[index];
+		const line = lines[index] ?? "";
 		const trimmed = line.trim();
 
 		if (trimmed.length === 0) {

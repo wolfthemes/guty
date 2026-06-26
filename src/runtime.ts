@@ -1,9 +1,13 @@
 import type {
+  ButtonProps,
   Child,
   ComponentType,
   ContainerProps,
   ElementNode,
+  HeaderProps,
   HeadingProps,
+  NavigationLinkProps,
+  NavigationProps,
   PageProps,
   ParagraphProps,
   PatternProps,
@@ -22,6 +26,10 @@ export const Container = component("Container");
 export const Heading = component("Heading");
 export const Paragraph = component("Paragraph");
 export const Pattern = component("Pattern");
+export const Header = component("Header");
+export const Navigation = component("Navigation");
+export const NavigationLink = component("NavigationLink");
+export const Button = component("Button");
 
 function normalizeChildren(input: PrimitiveChild[]): Child[] {
   const result: Child[] = [];
@@ -70,6 +78,10 @@ declare global {
       Heading: HeadingProps;
       Paragraph: ParagraphProps;
       Pattern: PatternProps;
+      Header: HeaderProps;
+      Navigation: NavigationProps;
+      NavigationLink: NavigationLinkProps;
+      Button: ButtonProps;
     }
   }
 }

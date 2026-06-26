@@ -11,6 +11,10 @@ const Container = "Container";
 const Heading = "Heading";
 const Paragraph = "Paragraph";
 const Pattern = "Pattern";
+const Header = "Header";
+const Navigation = "Navigation";
+const NavigationLink = "NavigationLink";
+const Button = "Button";
 function normalizeChildren(input) {
   const result = [];
   for (const child of input) {
@@ -47,7 +51,7 @@ function normalizeTemplateSource(source: string): string {
   let index = 0;
 
   while (index < lines.length) {
-    const trimmed = lines[index].trim();
+    const trimmed = (lines[index] ?? "").trim();
 
     if (trimmed.length === 0 || trimmed.startsWith("//")) {
       index += 1;

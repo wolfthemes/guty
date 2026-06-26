@@ -12,6 +12,10 @@ Supported elements:
 - `Heading`
 - `Paragraph`
 - `Pattern`
+- `Header`
+- `Navigation`
+- `NavigationLink`
+- `Button`
 
 Example input:
 
@@ -40,6 +44,30 @@ compiles to:
 
 ```html
 <!-- wp:pattern {"slug":"guty/hero"} /-->
+```
+
+`Header` is a group rendered with `tagName="header"`. Together with `Section`
+and `Container` it accepts the shared group props `className`, `align`
+(`"wide"` | `"full"`), and `layout` (passed through to the block, e.g.
+`{ type: "flex", justifyContent: "space-between" }`). Without a `layout` prop
+these default to `{ type: "constrained" }`.
+
+`Navigation` maps to `core/navigation` (`overlayMenu`, plus the shared group
+props) and contains `NavigationLink` (void; `label`, `url`, `opensInNewTab`) and
+`Button` elements. `Button` maps to `core/button` and takes `className` and
+`url`; its text comes from its single text child. Note that WordPress escapes
+`--` to a unicode escape in block-comment attributes (a literal `--` would
+close the HTML comment) — this is expected and round-trips on parse.
+
+```tsx
+<Header className="wolf-header" align="full">
+  <Container layout={{ type: "flex", justifyContent: "space-between" }}>
+    <Navigation overlayMenu="mobile">
+      <NavigationLink label="Home" url="/" />
+      <Button className="cta" url="/store">Browse</Button>
+    </Navigation>
+  </Container>
+</Header>
 ```
 
 Native WordPress FSE content is organized by top-level directory under the chosen input root:

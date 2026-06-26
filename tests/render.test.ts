@@ -136,6 +136,64 @@ describe("Pattern", () => {
   });
 });
 
+describe("Header / Navigation / Button", () => {
+  it("compiles a header part into a Gutenberg block tree", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+    const filePath = path.join(root, "header.guty.tsx");
+
+    await writeFile(
+      filePath,
+      [
+        "<Page>",
+        '  <Header className="wolf-header" align="full">',
+        '    <Container className="wolf-header__inner" align="wide" layout={{ type: "flex", justifyContent: "space-between", flexWrap: "nowrap" }}>',
+        '      <Navigation overlayMenu="mobile" className="wolf-nav" layout={{ type: "flex" }}>',
+        '        <NavigationLink label="Home" url="/" />',
+        '        <Button className="wolf-header__cta--drawer" url="/store">Browse</Button>',
+        "      </Navigation>",
+        "    </Container>",
+        "  </Header>",
+        "</Page>",
+      ].join("\n"),
+      "utf8",
+    );
+
+    try {
+      const page = await evaluateTemplate(filePath);
+      const markup = normalizeMarkup(serializeDocument(compileDocument(page)));
+
+      expect(markup).toContain(
+        '<!-- wp:group {"tagName":"header","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->',
+      );
+      expect(markup).toContain('<header class="wp-block-group alignfull wolf-header">');
+      expect(markup).toContain('<div class="wp-block-group alignwide wolf-header__inner">');
+      expect(markup).toContain(
+        '<!-- wp:navigation {"overlayMenu":"mobile","className":"wolf-nav","layout":{"type":"flex"}} -->',
+      );
+      expect(markup).toContain('<!-- wp:navigation-link {"label":"Home","url":"/"} /-->');
+      // -- is escaped to keep the HTML block comment valid (WordPress behavior).
+      expect(markup).toContain(
+        '<!-- wp:button {"className":"wolf-header__cta\\u002d\\u002ddrawer"} -->',
+      );
+      expect(markup).toContain(
+        '<div class="wp-block-button wolf-header__cta--drawer"><a class="wp-block-button__link wp-element-button" href="/store">Browse</a></div>',
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("requires a label for NavigationLink", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [{ type: "NavigationLink", props: { url: "/" }, children: [] }],
+    };
+
+    expect(() => compileDocument(page)).toThrow(/NavigationLink requires a non-empty label/);
+  });
+});
+
 describe("serializeDocument", () => {
   it("serializes a WordPress block tree into Gutenberg HTML", () => {
     const document: BlockDocument = {

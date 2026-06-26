@@ -8,9 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
-Gutenberg block markup. The supported element set is intentionally tiny (MVP):
-`Page`, `Section`, `Container`, `Heading`, `Paragraph`. Anything beyond that is
-expected to throw rather than silently degrade.
+Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
+`Container`, `Heading`, `Paragraph`, `Pattern`, `Header`, `Navigation`,
+`NavigationLink`, `Button`. Anything beyond that is expected to throw rather
+than silently degrade. `Section`/`Container`/`Header`/`Navigation` share the
+optional group props `className`, `align`, and `layout` (see `readCommonAttrs` /
+`groupBlock` in `compile.ts`).
 
 Note: this package lives inside the larger `wolf-store-docker` workspace but is a
 standalone tool — its remote is `git@github.com:wolfthemes/guty.git`.

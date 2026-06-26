@@ -51,14 +51,33 @@ function formatMarkup(value: string): string {
   return formatted.join("\n");
 }
 
-function getGroupTagName(node: BlockNode): "section" | "div" {
-  return node.attrs.tagName === "section" ? "section" : "div";
+function getGroupTagName(node: BlockNode): "section" | "header" | "div" {
+  const tagName = node.attrs.tagName;
+  return tagName === "section" || tagName === "header" ? tagName : "div";
+}
+
+function getGroupClassName(node: BlockNode): string {
+  const classes = ["wp-block-group"];
+
+  if (node.attrs.align === "wide") {
+    classes.push("alignwide");
+  } else if (node.attrs.align === "full") {
+    classes.push("alignfull");
+  }
+
+  if (typeof node.attrs.className === "string" && node.attrs.className.length > 0) {
+    classes.push(node.attrs.className);
+  }
+
+  return classes.join(" ");
 }
 
 function renderLeafMarkup(node: BlockNode): string {
   switch (node.blockName) {
     case "core/group":
     case "core/pattern":
+    case "core/navigation":
+    case "core/navigation-link":
       return "";
     case "core/heading": {
       const level = typeof node.attrs.level === "number" ? node.attrs.level : 2;
@@ -66,11 +85,14 @@ function renderLeafMarkup(node: BlockNode): string {
     }
     case "core/paragraph":
       return `<p>${node.innerHTML}</p>`;
+    case "core/button":
+      return node.innerHTML;
   }
 }
 
 function toRawBlock(node: BlockNode): RawBlockLike {
-  if (node.blockName === "core/pattern") {
+  // Void blocks: self-closing comment with no inner content.
+  if (node.blockName === "core/pattern" || node.blockName === "core/navigation-link") {
     return {
       blockName: node.blockName,
       attrs: node.attrs,
@@ -80,9 +102,24 @@ function toRawBlock(node: BlockNode): RawBlockLike {
     };
   }
 
+  // Navigation is a dynamic block: it saves only its inner blocks, with no
+  // wrapping HTML in the post content.
+  if (node.blockName === "core/navigation") {
+    return {
+      blockName: node.blockName,
+      attrs: node.attrs,
+      innerHTML: "",
+      innerContent: node.innerBlocks.flatMap((innerBlock, index) =>
+        index === 0 ? [null] : ["", null],
+      ),
+      innerBlocks: node.innerBlocks.map(toRawBlock),
+    };
+  }
+
   if (node.blockName === "core/group") {
     const tagName = getGroupTagName(node);
-    const openTag = `<${tagName} class="wp-block-group">`;
+    const className = getGroupClassName(node);
+    const openTag = `<${tagName} class="${className}">`;
     const closeTag = `</${tagName}>`;
 
     return {

@@ -29,29 +29,81 @@ function compileChildren(children: Child[]): BlockNode[] {
   });
 }
 
+interface CommonAttrs {
+  className?: string;
+  align?: "wide" | "full";
+  layout?: Record<string, unknown>;
+}
+
+function readCommonAttrs(node: ElementNode): CommonAttrs {
+  const attrs: CommonAttrs = {};
+  const { className, align, layout } = node.props;
+
+  if (className !== undefined) {
+    if (typeof className !== "string" || className.length === 0) {
+      throw new Error(`${node.type} className must be a non-empty string.`);
+    }
+
+    attrs.className = className;
+  }
+
+  if (align !== undefined) {
+    if (align !== "wide" && align !== "full") {
+      throw new Error(`${node.type} align must be "wide" or "full". Received: ${String(align)}`);
+    }
+
+    attrs.align = align;
+  }
+
+  if (layout !== undefined) {
+    if (typeof layout !== "object" || layout === null) {
+      throw new Error(`${node.type} layout must be an object.`);
+    }
+
+    attrs.layout = layout as Record<string, unknown>;
+  }
+
+  return attrs;
+}
+
+// Build group attrs in the fixed order tagName, className, align, layout so the
+// serialized JSON is deterministic.
+function groupBlock(node: ElementNode, tagName?: "section" | "header"): BlockNode {
+  const common = readCommonAttrs(node);
+  const attrs: Record<string, unknown> = {};
+
+  if (tagName) {
+    attrs.tagName = tagName;
+  }
+
+  if (common.className) {
+    attrs.className = common.className;
+  }
+
+  if (common.align) {
+    attrs.align = common.align;
+  }
+
+  attrs.layout = common.layout ?? { type: "constrained" };
+
+  return {
+    blockName: "core/group",
+    attrs,
+    innerBlocks: compileChildren(node.children),
+    innerHTML: "",
+  };
+}
+
 function compileNode(node: ElementNode): BlockNode {
   switch (node.type) {
     case "Page":
       throw new Error("Page nodes must be compiled through compileDocument.");
     case "Section":
-      return {
-        blockName: "core/group",
-        attrs: {
-          tagName: "section",
-          layout: { type: "constrained" },
-        },
-        innerBlocks: compileChildren(node.children),
-        innerHTML: "",
-      };
+      return groupBlock(node, "section");
     case "Container":
-      return {
-        blockName: "core/group",
-        attrs: {
-          layout: { type: "constrained" },
-        },
-        innerBlocks: compileChildren(node.children),
-        innerHTML: "",
-      };
+      return groupBlock(node);
+    case "Header":
+      return groupBlock(node, "header");
     case "Heading": {
       const level = Number(node.props.level ?? 2);
 
@@ -89,6 +141,107 @@ function compileNode(node: ElementNode): BlockNode {
         attrs: { slug },
         innerBlocks: [],
         innerHTML: "",
+      };
+    }
+    case "Navigation": {
+      const common = readCommonAttrs(node);
+      const attrs: Record<string, unknown> = {};
+      const overlayMenu = node.props.overlayMenu;
+
+      if (overlayMenu !== undefined) {
+        if (overlayMenu !== "mobile" && overlayMenu !== "always" && overlayMenu !== "never") {
+          throw new Error(
+            `Navigation overlayMenu must be "mobile", "always", or "never". Received: ${String(overlayMenu)}`,
+          );
+        }
+
+        attrs.overlayMenu = overlayMenu;
+      }
+
+      if (common.className) {
+        attrs.className = common.className;
+      }
+
+      if (common.align) {
+        attrs.align = common.align;
+      }
+
+      if (common.layout) {
+        attrs.layout = common.layout;
+      }
+
+      return {
+        blockName: "core/navigation",
+        attrs,
+        innerBlocks: compileChildren(node.children),
+        innerHTML: "",
+      };
+    }
+    case "NavigationLink": {
+      const label = node.props.label;
+
+      if (typeof label !== "string" || label.length === 0) {
+        throw new Error("NavigationLink requires a non-empty label prop.");
+      }
+
+      if (node.children.length > 0) {
+        throw new Error("NavigationLink is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = { label };
+      const url = node.props.url;
+
+      if (url !== undefined) {
+        if (typeof url !== "string" || url.length === 0) {
+          throw new Error("NavigationLink url must be a non-empty string.");
+        }
+
+        attrs.url = url;
+      }
+
+      const opensInNewTab = node.props.opensInNewTab;
+
+      if (opensInNewTab === true) {
+        attrs.opensInNewTab = true;
+      }
+
+      return {
+        blockName: "core/navigation-link",
+        attrs,
+        innerBlocks: [],
+        innerHTML: "",
+      };
+    }
+    case "Button": {
+      const text = expectTextChildren(node);
+      const attrs: Record<string, unknown> = {};
+      const className = node.props.className;
+
+      if (className !== undefined) {
+        if (typeof className !== "string" || className.length === 0) {
+          throw new Error("Button className must be a non-empty string.");
+        }
+
+        attrs.className = className;
+      }
+
+      const url = node.props.url;
+
+      if (url !== undefined && (typeof url !== "string" || url.length === 0)) {
+        throw new Error("Button url must be a non-empty string.");
+      }
+
+      const wrapperClass = ["wp-block-button", typeof className === "string" ? className : ""]
+        .filter((value) => value.length > 0)
+        .join(" ");
+      const href = typeof url === "string" ? ` href="${escapeHtml(url)}"` : "";
+      const innerHTML = `<div class="${wrapperClass}"><a class="wp-block-button__link wp-element-button"${href}>${text}</a></div>`;
+
+      return {
+        blockName: "core/button",
+        attrs,
+        innerBlocks: [],
+        innerHTML,
       };
     }
   }
