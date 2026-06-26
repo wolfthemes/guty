@@ -53,7 +53,23 @@ function formatMarkup(value: string): string {
 
 function getGroupTagName(node: BlockNode): "section" | "header" | "div" {
   const tagName = node.attrs.tagName;
-  return tagName === "section" || tagName === "header" ? tagName : "div";
+  return typeof tagName === "string" && tagName.length > 0 ? (tagName as "section" | "header" | "div") : "div";
+}
+
+function cssValue(value: unknown): string {
+  if (typeof value === "string" && value.startsWith("var:")) {
+    return `var(--wp--${value.slice(4).split("|").join("--")})`;
+  }
+
+  return String(value);
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+}
+
+function camelToKebab(value: string): string {
+  return value.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 }
 
 function getGroupClassName(node: BlockNode): string {
@@ -77,7 +93,50 @@ function getGroupClassName(node: BlockNode): string {
     classes.push(`has-${node.attrs.textColor}-color`, "has-text-color");
   }
 
+  if (typeof node.attrs.fontSize === "string" && node.attrs.fontSize.length > 0) {
+    classes.push(`has-${node.attrs.fontSize}-font-size`, "has-font-size");
+  }
+
+  if (typeof node.attrs.fontFamily === "string" && node.attrs.fontFamily.length > 0) {
+    classes.push(`has-${node.attrs.fontFamily}-font-family`);
+  }
+
   return classes.join(" ");
+}
+
+function getGroupStyle(node: BlockNode): string | undefined {
+  const style = asRecord(node.attrs.style);
+  if (!style) {
+    return undefined;
+  }
+
+  const declarations: string[] = [];
+  const spacing = asRecord(style.spacing);
+
+  for (const axis of ["margin", "padding"] as const) {
+    const sides = asRecord(spacing?.[axis]);
+    if (!sides) {
+      continue;
+    }
+
+    for (const side of ["top", "right", "bottom", "left"] as const) {
+      const value = sides[side];
+      if (value !== undefined) {
+        declarations.push(`${axis}-${side}:${cssValue(value)}`);
+      }
+    }
+  }
+
+  const typography = asRecord(style.typography);
+  if (typography) {
+    for (const [key, value] of Object.entries(typography)) {
+      if (value !== undefined) {
+        declarations.push(`${camelToKebab(key)}:${cssValue(value)}`);
+      }
+    }
+  }
+
+  return declarations.length > 0 ? declarations.join(";") : undefined;
 }
 
 // Blocks whose saved markup is HTML emitted by the block itself.
@@ -102,7 +161,9 @@ function toRawBlock(node: BlockNode): RawBlockLike {
   if (node.blockName === "core/group") {
     const tagName = getGroupTagName(node);
     const className = getGroupClassName(node);
-    const openTag = `<${tagName} class="${className}">`;
+    const style = getGroupStyle(node);
+    const styleAttr = style ? ` style="${style}"` : "";
+    const openTag = `<${tagName} class="${className}"${styleAttr}>`;
     const closeTag = `</${tagName}>`;
 
     return {

@@ -37,6 +37,7 @@ export type BlockAlign = "wide" | "full";
 
 export interface BlockLayout {
   type: "constrained" | "flex" | "default";
+  contentSize?: string;
   justifyContent?: "left" | "center" | "right" | "space-between";
   flexWrap?: "wrap" | "nowrap";
   orientation?: "horizontal" | "vertical";
@@ -48,6 +49,27 @@ export interface CommonBlockProps {
   align?: BlockAlign;
   backgroundColor?: string;
   textColor?: string;
+  textAlign?: "left" | "center" | "right";
+  fontSize?: string;
+  fontFamily?: string;
+  style?: Record<string, unknown>;
+  layoutType?: BlockLayout["type"];
+  layoutContentSize?: string;
+  layoutOrientation?: BlockLayout["orientation"];
+  p?: string | number;
+  px?: string | number;
+  py?: string | number;
+  pt?: string | number;
+  pr?: string | number;
+  pb?: string | number;
+  pl?: string | number;
+  m?: string | number;
+  mx?: string | number;
+  my?: string | number;
+  mt?: string | number;
+  mr?: string | number;
+  mb?: string | number;
+  ml?: string | number;
   layout?: BlockLayout;
 }
 
@@ -60,9 +82,13 @@ export interface PatternProps {
 }
 
 export type ParagraphProps = Record<string, never>;
-export type ContainerProps = CommonBlockProps;
-export type SectionProps = CommonBlockProps;
-export type HeaderProps = CommonBlockProps;
+export interface GroupBlockProps extends CommonBlockProps {
+  tagName?: string;
+}
+
+export type ContainerProps = GroupBlockProps;
+export type SectionProps = GroupBlockProps;
+export type HeaderProps = GroupBlockProps;
 export type PageProps = Record<string, never>;
 
 export interface SiteLogoProps {

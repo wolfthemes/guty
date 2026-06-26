@@ -108,12 +108,34 @@ interface CommonAttrs {
   align?: "wide" | "full";
   backgroundColor?: string;
   textColor?: string;
+  fontSize?: string;
+  fontFamily?: string;
+  style?: Record<string, unknown>;
   layout?: Record<string, unknown>;
+  tagName?: string;
 }
 
-function readCommonAttrs(node: ElementNode): CommonAttrs {
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+}
+
+function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } = {}): CommonAttrs {
   const attrs: CommonAttrs = {};
-  const { className, align, backgroundColor, textColor, layout } = node.props;
+  const {
+    className,
+    align,
+    backgroundColor,
+    textColor,
+    textAlign,
+    fontSize,
+    fontFamily,
+    style,
+    layout,
+    layoutType,
+    layoutContentSize,
+    layoutOrientation,
+    tagName,
+  } = node.props;
 
   if (className !== undefined) {
     if (typeof className !== "string" || className.length === 0) {
@@ -147,24 +169,117 @@ function readCommonAttrs(node: ElementNode): CommonAttrs {
     attrs.textColor = textColor;
   }
 
+  if (fontSize !== undefined) {
+    if (typeof fontSize !== "string" || fontSize.length === 0) {
+      throw new Error(`${node.type} fontSize must be a non-empty string.`);
+    }
+
+    attrs.fontSize = fontSize;
+  }
+
+  if (fontFamily !== undefined) {
+    if (typeof fontFamily !== "string" || fontFamily.length === 0) {
+      throw new Error(`${node.type} fontFamily must be a non-empty string.`);
+    }
+
+    attrs.fontFamily = fontFamily;
+  }
+
+  const baseStyle = style === undefined ? {} : asRecord(style);
+  if (style !== undefined && !baseStyle) {
+    throw new Error(`${node.type} style must be an object.`);
+  }
+
+  const mergedStyle: Record<string, unknown> = { ...(baseStyle ?? {}) };
+  if (textAlign !== undefined) {
+    if (textAlign !== "left" && textAlign !== "center" && textAlign !== "right") {
+      throw new Error(`${node.type} textAlign must be "left", "center", or "right". Received: ${String(textAlign)}`);
+    }
+
+    const typography = asRecord(mergedStyle.typography) ?? {};
+    mergedStyle.typography = { ...typography, textAlign };
+  }
+
+  const spacing: { padding?: Record<string, string>; margin?: Record<string, string> } = {};
+  for (const [key, value] of Object.entries(node.props)) {
+    const sugar = SPACING_SUGAR[key];
+    if (!sugar || value === undefined) {
+      continue;
+    }
+
+    for (const side of sugar.sides) {
+      (spacing[sugar.axis] ??= {})[side] = spacingValue(value);
+    }
+  }
+
+  if (spacing.padding || spacing.margin) {
+    const baseSpacing = asRecord(mergedStyle.spacing) ?? {};
+    mergedStyle.spacing = { ...baseSpacing, ...spacing };
+  }
+
+  if (Object.keys(mergedStyle).length > 0) {
+    attrs.style = mergedStyle;
+  }
+
   if (layout !== undefined) {
     if (typeof layout !== "object" || layout === null) {
       throw new Error(`${node.type} layout must be an object.`);
     }
+  }
 
-    attrs.layout = layout as Record<string, unknown>;
+  const mergedLayout = layout && typeof layout === "object" ? { ...(layout as Record<string, unknown>) } : {};
+
+  if (layoutType !== undefined) {
+    if (layoutType !== "constrained" && layoutType !== "flex" && layoutType !== "default") {
+      throw new Error(
+        `${node.type} layoutType must be "constrained", "flex", or "default". Received: ${String(layoutType)}`,
+      );
+    }
+
+    mergedLayout.type = layoutType;
+  }
+
+  if (layoutContentSize !== undefined) {
+    if (typeof layoutContentSize !== "string" || layoutContentSize.length === 0) {
+      throw new Error(`${node.type} layoutContentSize must be a non-empty string.`);
+    }
+
+    mergedLayout.contentSize = layoutContentSize;
+  }
+
+  if (layoutOrientation !== undefined) {
+    if (layoutOrientation !== "horizontal" && layoutOrientation !== "vertical") {
+      throw new Error(
+        `${node.type} layoutOrientation must be "horizontal" or "vertical". Received: ${String(layoutOrientation)}`,
+      );
+    }
+
+    mergedLayout.orientation = layoutOrientation;
+  }
+
+  if (Object.keys(mergedLayout).length > 0) {
+    attrs.layout = mergedLayout;
+  }
+
+  if (options.allowTagName && tagName !== undefined) {
+    if (typeof tagName !== "string" || tagName.length === 0) {
+      throw new Error(`${node.type} tagName must be a non-empty string.`);
+    }
+
+    attrs.tagName = tagName;
   }
 
   return attrs;
 }
 
 // Build group attrs in the fixed order tagName, className, align,
-// backgroundColor, textColor, layout so the
+// backgroundColor, textColor, fontSize, fontFamily, style, layout so the
 // serialized JSON is deterministic.
-function groupBlock(node: ElementNode, ctx: CompileContext, tagName?: "section" | "header"): BlockNode {
-  const common = readCommonAttrs(node);
+function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: string): BlockNode {
+  const common = readCommonAttrs(node, { allowTagName: true });
   const attrs: Record<string, unknown> = {};
 
+  const tagName = common.tagName ?? defaultTagName;
   if (tagName) {
     attrs.tagName = tagName;
   }
@@ -183,6 +298,18 @@ function groupBlock(node: ElementNode, ctx: CompileContext, tagName?: "section" 
 
   if (common.textColor) {
     attrs.textColor = common.textColor;
+  }
+
+  if (common.fontSize) {
+    attrs.fontSize = common.fontSize;
+  }
+
+  if (common.fontFamily) {
+    attrs.fontFamily = common.fontFamily;
+  }
+
+  if (common.style) {
+    attrs.style = common.style;
   }
 
   attrs.layout = common.layout ?? { type: "constrained" };
@@ -329,6 +456,18 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
 
       if (common.textColor) {
         attrs.textColor = common.textColor;
+      }
+
+      if (common.fontSize) {
+        attrs.fontSize = common.fontSize;
+      }
+
+      if (common.fontFamily) {
+        attrs.fontFamily = common.fontFamily;
+      }
+
+      if (common.style) {
+        attrs.style = common.style;
       }
 
       if (common.layout) {

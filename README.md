@@ -55,6 +55,17 @@ through to the block, e.g.
 `{ type: "flex", justifyContent: "space-between" }`). Without a `layout` prop
 these default to `{ type: "constrained" }`.
 
+The shared native group props also include:
+
+- `tagName` for overriding the saved wrapper tag
+- `textAlign`, which maps to `style.typography.textAlign`
+- `fontSize` and `fontFamily`
+- `layoutType`, `layoutContentSize`, and `layoutOrientation` as layout sugar
+- spacing sugar: `p`, `px`, `py`, `pt`, `pr`, `pb`, `pl`, `m`, `mx`, `my`,
+  `mt`, `mr`, `mb`, `ml`
+- `style` as a limited escape hatch for supported `spacing` / `typography`
+  values
+
 `SiteLogo` maps to `core/site-logo`. It is a void element and supports a narrow
 set of explicit props today: `className`, `width`, `isLink`, `opensInNewTab`,
 `linkTarget`, `rel`, and `shouldSyncIcon`.

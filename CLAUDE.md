@@ -54,7 +54,10 @@ A build is a 4-stage pipeline, one pass per `.guty.tsx` file
    tree (`BlockDocument`). This is where element→block mapping, validation, and
    `Block` sugar live: `Section`/`Container` → `core/group`, `Heading` →
    `core/heading`, `Paragraph` → `core/paragraph`, `SiteLogo` →
-   `core/site-logo`. `applyBlockSugar` maps
+   `core/site-logo`. `readCommonAttrs` also handles native group sugar:
+   `textAlign`, `fontSize`, `fontFamily`, `layoutType`,
+   `layoutContentSize`, `layoutOrientation`, and spacing shorthands like `py`
+   / `mt`. `applyBlockSugar` maps
    `class` → `className`, spacing shorthands like `py` / `mt` into
    `style.spacing`, and passes the result to the block renderer when a custom
    block has been registered. Text is only allowed inside `Heading`/

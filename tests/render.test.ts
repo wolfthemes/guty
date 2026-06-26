@@ -179,6 +179,62 @@ describe("compileDocument", () => {
       ],
     } satisfies BlockDocument);
   });
+
+  it("maps native layout, typography, and spacing props onto group attrs", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Container",
+          props: {
+            tagName: "article",
+            fontSize: "base",
+            fontFamily: "serif",
+            textAlign: "center",
+            layoutType: "constrained",
+            layoutContentSize: "var(--wp--style--global--wide-size)",
+            layoutOrientation: "horizontal",
+            pt: 40,
+            px: "2rem",
+          },
+          children: [],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: {
+            tagName: "article",
+            fontSize: "base",
+            fontFamily: "serif",
+            style: {
+              typography: {
+                textAlign: "center",
+              },
+              spacing: {
+                padding: {
+                  top: "var:preset|spacing|40",
+                  left: "2rem",
+                  right: "2rem",
+                },
+              },
+            },
+            layout: {
+              type: "constrained",
+              contentSize: "var(--wp--style--global--wide-size)",
+              orientation: "horizontal",
+            },
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
 });
 
 describe("Pattern", () => {
@@ -629,6 +685,44 @@ describe("serializeDocument", () => {
 
     expect(normalizeMarkup(serializeDocument(document))).toBe(
       '<!-- wp:group {"tagName":"section","className":"wolf-about wolf-section-pad\\u002d\\u002dbig is-dark has-texture","align":"full","backgroundColor":"contrast","textColor":"base","layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)"}} --><section class="wp-block-group alignfull wolf-about wolf-section-pad--big is-dark has-texture has-contrast-background-color has-background has-base-color has-text-color"></section><!-- /wp:group -->',
+    );
+  });
+
+  it("serializes group typography, spacing, and custom tagName", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: {
+            tagName: "article",
+            fontSize: "base",
+            fontFamily: "serif",
+            style: {
+              typography: {
+                textAlign: "center",
+              },
+              spacing: {
+                padding: {
+                  top: "var:preset|spacing|40",
+                  left: "2rem",
+                  right: "2rem",
+                },
+              },
+            },
+            layout: {
+              type: "constrained",
+              contentSize: "var(--wp--style--global--wide-size)",
+              orientation: "horizontal",
+            },
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    };
+
+    expect(normalizeMarkup(serializeDocument(document))).toBe(
+      '<!-- wp:group {"tagName":"article","fontSize":"base","fontFamily":"serif","style":{"typography":{"textAlign":"center"},"spacing":{"padding":{"top":"var:preset|spacing|40","left":"2rem","right":"2rem"}}},"layout":{"type":"constrained","contentSize":"var(\\u002d\\u002dwp\\u002d\\u002dstyle\\u002d\\u002dglobal\\u002d\\u002dwide-size)","orientation":"horizontal"}} --><article class="wp-block-group has-base-font-size has-font-size has-serif-font-family" style="padding-top:var(--wp--preset--spacing--40);padding-right:2rem;padding-left:2rem;text-align:center"></article><!-- /wp:group -->',
     );
   });
 });
