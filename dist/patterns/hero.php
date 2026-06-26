@@ -13,7 +13,7 @@
 <section class="wp-block-group">
   <!-- wp:group {"layout":{"type":"constrained"}} -->
   <div class="wp-block-group">
-    <!-- wp:heading -->
+    <!-- wp:heading {"level":2} -->
     <h2 class="wp-block-heading">Hero Pattern</h2>
     <!-- /wp:heading -->
     <!-- wp:paragraph -->

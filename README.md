@@ -2,6 +2,32 @@
 
 Minimal TypeScript CLI that compiles a narrow TSX-like Gutenberg structure into WordPress block markup.
 
+## Commands
+
+Compile the TypeScript package into `build/`:
+
+```bash
+npm run build
+```
+
+Run the test suite once:
+
+```bash
+npm test
+```
+
+Rebuild the package and regenerate the example output in `dist/`:
+
+```bash
+npm run dev
+```
+
+Compile examples directly into `dist/` after the package has been built:
+
+```bash
+node build/cli.js build examples --out dist
+```
+
 ## MVP
 
 Supported elements:

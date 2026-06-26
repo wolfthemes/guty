@@ -10,7 +10,7 @@
 ?>
 
 <!-- wp:group {"tagName":"section","backgroundColor":"base-2","className":"wolf-about wolf-section-pad\u002d\u002dbig ","align":"full","layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
-<section class="wp-block-group alignfull has-base-2-background-color has-background wolf-about wolf-section-pad--big ">
+<section class="wp-block-group alignfull wolf-about wolf-section-pad--big  has-base-2-background-color has-background">
   <!-- wp:columns {"verticalAlignment":"center"} -->
   <div class="wp-block-columns are-vertically-aligned-center">
     <!-- wp:column {"className":"wolf-about__main","width":"60%"} -->
@@ -18,7 +18,7 @@
       <!-- wp:paragraph {"className":"wolf-about__eyebrow wolf-eyebrow"} -->
       <p class="wolf-about__eyebrow wolf-eyebrow">The person behind the code</p>
       <!-- /wp:paragraph -->
-      <!-- wp:heading {"className":"wolf-about__title"} -->
+      <!-- wp:heading {"level":2,"className":"wolf-about__title"} -->
       <h2 class="wp-block-heading wolf-about__title">I'm Constantin. For 14 years, I've been the only person writing every line of WolfThemes.</h2>
       <!-- /wp:heading -->
       <!-- wp:paragraph {"className":"wolf-about__text"} -->
