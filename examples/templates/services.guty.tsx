@@ -1,6 +1,6 @@
 <Page>
 	<Header slug="header" />
-	<Main className="wp-block-group">
+	<Main>
 		<Pattern slug="seijaku-fse/services-hero" />
 		<Pattern slug="seijaku-fse/services-intro" />
 		<Pattern slug="seijaku-fse/services-how-it-works" />

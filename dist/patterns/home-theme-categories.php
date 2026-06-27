@@ -30,7 +30,7 @@
 			<h3 class="wp-block-heading has-text-align-center">&lt;a href="&lt;?php echo esc_url( home_url( '/theme-category/music/' ) ); ?&gt;"&gt;Music&lt;/a&gt;</h3>
 			<!-- /wp:heading -->
 			<!-- wp:paragraph {"align":"center","fontSize":"sm"} -->
-			<p class="has-text-align-center has-sm-font-size">Bands, labels &amp; festivals</p>
+			<p class="has-text-align-center has-sm-font-size">Bands, labels & festivals</p>
 			<!-- /wp:paragraph -->
 		</div></div>
 		<!-- /wp:cover -->
@@ -44,7 +44,7 @@
 		<h3 class="wp-block-heading has-text-align-center">&lt;a href="&lt;?php echo esc_url( home_url( '/theme-category/creative/' ) ); ?&gt;"&gt;Creative&lt;/a&gt;</h3>
 		<!-- /wp:heading -->
 		<!-- wp:paragraph {"align":"center","fontSize":"sm"} -->
-		<p class="has-text-align-center has-sm-font-size">Studios, agencies &amp; portfolios</p>
+		<p class="has-text-align-center has-sm-font-size">Studios, agencies & portfolios</p>
 		<!-- /wp:paragraph -->
 	</div></div>
 	<!-- /wp:cover -->
@@ -58,7 +58,7 @@
 	<h3 class="wp-block-heading has-text-align-center">&lt;a href="&lt;?php echo esc_url( home_url( '/theme-category/portfolio/' ) ); ?&gt;"&gt;Portfolio&lt;/a&gt;</h3>
 	<!-- /wp:heading -->
 	<!-- wp:paragraph {"align":"center","fontSize":"sm"} -->
-	<p class="has-text-align-center has-sm-font-size">Personal &amp; brand sites</p>
+	<p class="has-text-align-center has-sm-font-size">Personal & brand sites</p>
 	<!-- /wp:paragraph -->
 </div></div>
 <!-- /wp:cover -->

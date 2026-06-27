@@ -685,7 +685,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         blockName: "core/paragraph",
         attrs,
         innerBlocks: [],
-        innerHTML: expectTextChildren(node),
+        innerHTML: expectRawTextChildren(node),
       };
     }
     case "TemplatePart": {

@@ -1,6 +1,6 @@
 <Page>
 	<Header slug="header" />
-	<Main className="wp-block-group">
+	<Main>
 		<Pattern slug="seijaku-fse/contact-intro" />
 		<Pattern slug="seijaku-fse/contact-options" />
 		<Pattern slug="seijaku-fse/contact-form" />
