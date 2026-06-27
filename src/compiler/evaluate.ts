@@ -27,6 +27,7 @@ const Image = "Image";
 const Spacer = "Spacer";
 const List = "List";
 const ListItem = "ListItem";
+const Link = "Link";
 const Details = "Details";
 const Html = "Html";
 const Shortcode = "Shortcode";
