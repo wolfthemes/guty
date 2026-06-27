@@ -117,6 +117,7 @@ export interface PatternProps {
 export interface ParagraphProps {
   className?: string;
   align?: "left" | "center" | "right";
+  textAlign?: "left" | "center" | "right";
   fontSize?: string;
   style?: Record<string, unknown>;
 }

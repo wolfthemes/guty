@@ -664,7 +664,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
     }
     case "Paragraph": {
       const attrs: Record<string, unknown> = {};
-      const align = textAlignValue(node, "align", node.props.align);
+      const align = textAlignValue(node, "align", node.props.textAlign ?? node.props.align);
       if (align) {
         attrs.align = align;
       }
