@@ -41,7 +41,7 @@ function formatMarkup(value: string): string {
       indentLevel = Math.max(0, indentLevel - 1);
     }
 
-    formatted.push(`${"  ".repeat(indentLevel)}${line}`);
+    formatted.push(`${"\t".repeat(indentLevel)}${line}`);
 
     if (/^<[^!/][^>]*>$/.test(line) && !line.startsWith("</") && !line.includes("</")) {
       indentLevel += 1;
