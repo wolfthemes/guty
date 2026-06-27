@@ -69,7 +69,7 @@ export interface BlockLayout {
   orientation?: "horizontal" | "vertical";
 }
 
-/** Props shared by group-like blocks (Section, Container, Main, Header, Footer, Navigation). */
+/** Props shared by group-like blocks (Section, Container, Main, Navigation). */
 export interface CommonBlockProps {
   anchor?: string;
   metadata?: Record<string, unknown>;
@@ -133,8 +133,8 @@ export interface GroupBlockProps extends CommonBlockProps {
 export type ContainerProps = GroupBlockProps;
 export type MainProps = GroupBlockProps;
 export type SectionProps = GroupBlockProps;
-export type HeaderProps = GroupBlockProps;
-export type FooterProps = GroupBlockProps;
+export interface HeaderProps { slug: string }
+export interface FooterProps { slug: string }
 export type PageProps = Record<string, never>;
 
 export interface SiteLogoProps {

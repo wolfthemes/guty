@@ -555,9 +555,22 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       return commonContainerBlock(node, ctx, "core/buttons", attrs);
     }
     case "Header":
-      return groupBlock(node, ctx, "header");
-    case "Footer":
-      return groupBlock(node, ctx, "footer");
+    case "Footer": {
+      if (node.children.length > 0) {
+        throw new Error(`${node.type} is a void block and cannot have children.`);
+      }
+      const slug = readNonEmptyString(node, "slug", node.props.slug);
+      if (!slug) {
+        throw new Error(`${node.type} requires a non-empty slug prop.`);
+      }
+      const area = node.type === "Header" ? "header" : "footer";
+      return {
+        blockName: "core/template-part",
+        attrs: { slug, tagName: area, area },
+        innerBlocks: [],
+        innerHTML: "",
+      };
+    }
     case "SiteLogo": {
       if (node.children.length > 0) {
         throw new Error("SiteLogo is a void block and cannot have children.");
