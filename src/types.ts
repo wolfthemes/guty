@@ -216,7 +216,6 @@ export interface ListProps {
 export type ListItemProps = Record<string, never>;
 export interface LinkProps {
   href: string;
-  text: string;
   target?: string;
   rel?: string;
 }

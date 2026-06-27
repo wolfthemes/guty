@@ -40,11 +40,11 @@ function renderLinkChild(child: ElementNode["children"][number]): string {
   if (typeof child === "string") return child;
   if (child.type !== "Link") throw new Error(`Unexpected element <${child.type}> here; only text or <Link> allowed.`);
   const href = child.props.href;
-  const text = child.props.text;
   const target = child.props.target;
   const rel = child.props.rel;
   if (typeof href !== "string" || href.length === 0) throw new Error("Link requires a non-empty href prop.");
-  if (typeof text !== "string" || text.length === 0) throw new Error("Link requires a non-empty text prop.");
+  const text = child.children.map((c) => (typeof c === "string" ? c : "")).join("");
+  if (text.length === 0) throw new Error("Link requires non-empty text children.");
   const targetAttr = typeof target === "string" ? ` target="${escapeHtml(target)}"` : "";
   const relAttr = typeof rel === "string" ? ` rel="${escapeHtml(rel)}"` : "";
   return `<a href="${escapeHtml(href)}"${targetAttr}${relAttr}>${escapeHtml(text)}</a>`;

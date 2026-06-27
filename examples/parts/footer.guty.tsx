@@ -16,35 +16,35 @@
 			<Container className="wolf-footer__col">
 				<Heading className="wolf-footer__head">Navigate</Heading>
 				<List className="wolf-footer__links">
-					<ListItem><Link href="/" text="Home" /></ListItem>
-					<ListItem><Link href="/wordpress-themes" text="All Themes" /></ListItem>
-					<ListItem><Link href="/music-wordpress-themes" text="Music Themes" /></ListItem>
-					<ListItem><Link href="/services" text="Services" /></ListItem>
-					<ListItem><Link href="/about" text="About" /></ListItem>
-					<ListItem><Link href="/contact" text="Contact" /></ListItem>
+					<ListItem><Link href="/">Home</Link></ListItem>
+					<ListItem><Link href="/wordpress-themes">All Themes</Link></ListItem>
+					<ListItem><Link href="/music-wordpress-themes">Music Themes</Link></ListItem>
+					<ListItem><Link href="/services">Services</Link></ListItem>
+					<ListItem><Link href="/about">About</Link></ListItem>
+					<ListItem><Link href="/contact">Contact</Link></ListItem>
 				</List>
 			</Container>
 
 			<Container className="wolf-footer__col">
 				<Heading className="wolf-footer__head">Support</Heading>
 				<List className="wolf-footer__links">
-					<ListItem><Link href="/help-center" text="Help Center" /></ListItem>
-					<ListItem><Link href="https://wiki.wolfthemes.com/" text="Knowledge Base" /></ListItem>
+					<ListItem><Link href="/help-center">Help Center</Link></ListItem>
+					<ListItem><Link href="https://wiki.wolfthemes.com/">Knowledge Base</Link></ListItem>
 				</List>
 			</Container>
 
 			<Container className="wolf-footer__col">
 				<Heading className="wolf-footer__head">Socials</Heading>
 				<List className="wolf-footer__links">
-					<ListItem><Link href="https://facebook.com/wolfthemes" text="Facebook" rel="noopener" target="_blank" /></ListItem>
-					<ListItem><Link href="https://instagram.com/wolfthemes" text="Instagram" rel="noopener" target="_blank" /></ListItem>
+					<ListItem><Link href="https://facebook.com/wolfthemes" rel="noopener" target="_blank">Facebook</Link></ListItem>
+					<ListItem><Link href="https://instagram.com/wolfthemes" rel="noopener" target="_blank">Instagram</Link></ListItem>
 				</List>
 			</Container>
 
 			<Container className="wolf-footer__col">
 				<Heading className="wolf-footer__head">Say Hello</Heading>
 				<List className="wolf-footer__links">
-					<ListItem><Link href="mailto:hello@wolfthemes.com" text="hello@wolfthemes.com" /></ListItem>
+					<ListItem><Link href="mailto:hello@wolfthemes.com">hello@wolfthemes.com</Link></ListItem>
 				</List>
 			</Container>
 		</Container>

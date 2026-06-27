@@ -10,9 +10,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
 Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
 `Container`, `Columns`, `Column`, `Heading`, `Paragraph`, `Pattern`, `Header`, `Footer`, `SiteLogo`, `Navigation`,
-`NavigationLink`, `Button`, plus the generic `Block` escape hatch for any
+`NavigationLink`, `Button`, `List`, `ListItem`, `Link`, plus the generic `Block` escape hatch for any
 registered/custom block (e.g. `wolf-store/theme-index`). Anything beyond that is
 expected to throw rather than silently degrade.
+`Link` is an inline element only valid as a child of `ListItem` — it renders
+to `<a href="...">children</a>` in innerHTML. Props: `href` (required), `target`, `rel`.
+Text is passed as children, not a prop: `<Link href="/">Home</Link>`.
+
 `Section`/`Container`/`Navigation` share the optional group props
 `className`, `align`, `backgroundColor`, `textColor`, and `layout` (see
 `readCommonAttrs` / `groupBlock` in `compile.ts`). `Header` and `Footer` are
