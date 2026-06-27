@@ -101,7 +101,9 @@ const SPACING_SUGAR: Record<string, { axis: "padding" | "margin"; sides: readonl
 
 // Bare integers map to the theme spacing preset scale; explicit values pass through.
 function spacingValue(value: unknown): string {
-  return /^\d+$/.test(String(value)) ? `var:preset|spacing|${value}` : String(value);
+  return typeof value === "number" && /^\d+$/.test(String(value))
+    ? `var:preset|spacing|${value}`
+    : String(value);
 }
 
 /**
