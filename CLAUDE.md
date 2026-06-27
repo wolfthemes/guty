@@ -9,13 +9,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@guty/core` (`guty` CLI) compiles a narrow, JSX-like TSX dialect into WordPress
 Gutenberg block markup. The supported element set is intentionally narrow: `Page`, `Section`,
-`Container`, `Columns`, `Column`, `Heading`, `Paragraph`, `Pattern`, `Header`, `SiteLogo`, `Navigation`,
+`Container`, `Columns`, `Column`, `Heading`, `Paragraph`, `Pattern`, `Header`, `Footer`, `SiteLogo`, `Navigation`,
 `NavigationLink`, `Button`, plus the generic `Block` escape hatch for any
 registered/custom block (e.g. `wolf-store/theme-index`). Anything beyond that is
 expected to throw rather than silently degrade.
-`Section`/`Container`/`Header`/`Navigation` share the optional group props
+`Section`/`Container`/`Navigation` share the optional group props
 `className`, `align`, `backgroundColor`, `textColor`, and `layout` (see
-`readCommonAttrs` / `groupBlock` in `compile.ts`). `Block` takes a namespaced
+`readCommonAttrs` / `groupBlock` in `compile.ts`). `Header` and `Footer` are
+void sugar over `core/template-part` — they require only a `slug` prop and
+pre-set `tagName` and `area` to `"header"`/`"footer"` respectively. Use
+`TemplatePart` directly for any non-standard area. `Block` takes a namespaced
 `name` prop; all other props become
 block attributes in order. If a matching custom block is registered via
 `--blocks` / `guty.config.json`, `compile.ts` can call its real `save.js`
