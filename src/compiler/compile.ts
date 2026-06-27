@@ -188,6 +188,7 @@ function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } 
     layoutType,
     layoutContentSize,
     layoutOrientation,
+    layoutJustifyContent,
     tagName,
   } = node.props;
 
@@ -326,6 +327,14 @@ function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } 
     }
 
     mergedLayout.orientation = layoutOrientation;
+  }
+
+  if (layoutJustifyContent !== undefined) {
+    if (typeof layoutJustifyContent !== "string" || layoutJustifyContent.length === 0) {
+      throw new Error(`${node.type} layoutJustifyContent must be a non-empty string.`);
+    }
+
+    mergedLayout.justifyContent = layoutJustifyContent;
   }
 
   if (Object.keys(mergedLayout).length > 0) {
@@ -549,10 +558,11 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       };
     }
     case "Buttons": {
+      const common = readCommonAttrs(node);
       const attrs: Record<string, unknown> = {};
-      readStringAttr(node, attrs, "className");
-      readPlainObjectAttr(node, attrs, "style");
-      readPlainObjectAttr(node, attrs, "layout");
+      if (common.className) attrs.className = common.className;
+      if (common.style) attrs.style = common.style;
+      if (common.layout) attrs.layout = common.layout;
 
       return commonContainerBlock(node, ctx, "core/buttons", attrs);
     }

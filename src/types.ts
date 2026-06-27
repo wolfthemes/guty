@@ -84,6 +84,7 @@ export interface CommonBlockProps {
   layoutType?: BlockLayout["type"];
   layoutContentSize?: string;
   layoutOrientation?: BlockLayout["orientation"];
+  layoutJustifyContent?: string;
   p?: string | number;
   px?: string | number;
   py?: string | number;
