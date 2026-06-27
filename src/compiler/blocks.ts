@@ -7,7 +7,7 @@ import { transpileToCjs } from "./transpile.js";
 
 const require = createRequire(import.meta.url);
 const wpElement = require("@wordpress/element") as {
-  createElement: unknown;
+  createElement: (type: unknown, props?: unknown, ...children: unknown[]) => unknown;
   Fragment: unknown;
   renderToString: (element: unknown) => string;
 };
@@ -170,6 +170,8 @@ function instantiateSave(jsSource: string, fileName: string, dir: string, metada
           save: (passed: { className?: string; style?: Record<string, unknown> } = {}) =>
             computeBlockProps(metadata, state.attributes, passed),
         },
+        InnerBlocks: { Content: () => null },
+        RichText: { Content: ({ value, tagName: Tag = "div", ...rest }: Record<string, unknown>) => wpElement.createElement(Tag as string, rest, value) },
       };
     }
 

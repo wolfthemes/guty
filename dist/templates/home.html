@@ -1,0 +1,38 @@
+<!-- wp:template-part {"slug":"header","tagName":"header","area":"header"} /-->
+
+<!-- wp:group {"tagName":"main","layout":{"type":"default"}} -->
+<main class="wp-block-group">
+	<!-- wp:group {"tagName":"section","className":"wolf-section-pad\u002d\u002dbig","layout":{"type":"constrained","contentSize":"48rem"}} -->
+	<section class="wp-block-group wolf-section-pad--big">
+		<!-- wp:query-title {"type":"archive","textAlign":"center","fontSize":"3-xl"} /-->
+		<!-- wp:paragraph {"align":"center","fontSize":"base"} -->
+		<p class="has-text-align-center has-base-font-size">Notes, updates, and articles from WolfThemes.</p>
+		<!-- /wp:paragraph -->
+		<!-- wp:query {"queryId":0,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true}} -->
+		<div class="wp-block-query">
+			<!-- wp:post-template {"style":{"spacing":{"blockGap":"var:preset|spacing|7"}}} -->
+			<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|3"}},"layout":{"type":"constrained"}} -->
+			<div class="wp-block-group" style="gap:var(--wp--preset--spacing--3)">
+				<!-- wp:post-date {"fontSize":"xs"} /-->
+				<!-- wp:post-title {"isLink":true,"fontSize":"2-xl"} /-->
+				<!-- wp:post-excerpt {"moreText":"Read more","excerptLength":28} /-->
+			</div>
+			<!-- /wp:group -->
+			<!-- /wp:post-template -->
+			<!-- wp:query-pagination -->
+			<!-- wp:query-pagination-previous /-->
+			<!-- wp:query-pagination-next /-->
+			<!-- /wp:query-pagination -->
+			<!-- wp:query-no-results -->
+			<!-- wp:paragraph {"align":"center"} -->
+			<p class="has-text-align-center">No posts found.</p>
+			<!-- /wp:paragraph -->
+			<!-- /wp:query-no-results -->
+		</div>
+		<!-- /wp:query -->
+	</section>
+	<!-- /wp:group -->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer","area":"footer"} /-->

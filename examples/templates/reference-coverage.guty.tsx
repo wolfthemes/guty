@@ -1,29 +1,8 @@
 export default (
   <Page>
-    <TemplatePart slug="header" tagName="header" area="header" theme="seijaku-fse" />
+    <Header slug="header" />
 
-    <Header className="wolf-header" align="full">
-      <Container
-        align="wide"
-        className="wolf-header__inner"
-        layout={{ type: "flex", justifyContent: "space-between", flexWrap: "nowrap" }}
-      >
-        <Pattern slug="seijaku-fse/logo-mark-dark" />
-        <Navigation
-          overlayMenu="mobile"
-          className="wolf-nav"
-          layout={{ type: "flex", justifyContent: "right", flexWrap: "wrap" }}
-        >
-          <NavigationLink label="Home" url="/" />
-          <NavigationLink label="Store" url="/wordpress-themes" />
-          <Button className="wolf-header__cta" url="/wordpress-themes" linkTarget="_blank" rel="noreferrer">
-            Browse Themes
-          </Button>
-        </Navigation>
-      </Container>
-    </Header>
-
-    <Main layout={{ type: "default" }}>
+    <Main layoutType="default">
       <Cover
         url="<?php echo esc_url( get_theme_file_uri() . '/assets/images/hero-services.jpg' ); ?>"
         dimRatio={40}
@@ -34,15 +13,15 @@ export default (
         pt={10}
         pb={9}
       >
-        <Container layout={{ type: "constrained", contentSize: "920px" }}>
+        <Container layoutType="constrained" layoutContentSize="920px">
           <Paragraph className="wolf-eyebrow">Reference coverage</Paragraph>
           <Heading level={1} textAlign="center" fontSize="hero">
             Gutenberg output coverage
           </Heading>
-          <Paragraph align="center" fontSize="md">
+          <Paragraph textAlign="center" fontSize="md">
             This source exercises the reference-backed Guty syntax.
           </Paragraph>
-          <Buttons className="wolf-btn-lg" layout={{ type: "flex", justifyContent: "center" }}>
+          <Buttons className="wolf-btn-lg" layoutType="flex" layoutJustifyContent="center">
             <Button url="/services">Start a Project</Button>
           </Buttons>
         </Container>
@@ -55,10 +34,11 @@ export default (
         backgroundColor="base-2"
         className="wolf-section-pad--big"
         metadata={{ name: "Reference Grid" }}
-        layout={{ type: "constrained", contentSize: "var(--wp--style--global--wide-size)" }}
+        layoutType="constrained"
+        layoutContentSize="var(--wp--style--global--wide-size)"
       >
         <Columns verticalAlignment="center" style={{ spacing: { blockGap: { left: "var:preset|spacing|8" } } }}>
-          <Column width="60%" className="wolf-reference__main" layout={{ type: "default" }}>
+          <Column width="60%" className="wolf-reference__main" layoutType="default">
             <Image
               width="120px"
               height="120px"
@@ -107,25 +87,25 @@ export default (
           sticky: "",
           inherit: true,
         }}
-        layout={{ type: "constrained" }}
+        layoutType="constrained"
       >
-        <PostTemplate style={{ spacing: { blockGap: "var:preset|spacing|7" } }} layout={{ type: "constrained" }}>
+        <PostTemplate style={{ spacing: { blockGap: "var:preset|spacing|7" } }} layoutType="constrained">
           <PostDate fontSize="xs" />
           <PostTitle isLink fontSize="2-xl" />
           <PostExcerpt moreText="Read more" excerptLength={28} />
         </PostTemplate>
-        <QueryPagination layout={{ type: "flex", justifyContent: "space-between" }}>
+        <QueryPagination layoutType="flex" layoutJustifyContent="space-between">
           <QueryPaginationPrevious />
           <QueryPaginationNext />
         </QueryPagination>
         <QueryNoResults>
-          <Paragraph align="center">No posts found.</Paragraph>
+          <Paragraph textAlign="center">No posts found.</Paragraph>
         </QueryNoResults>
       </Query>
 
       <QueryTitle type="archive" textAlign="center" fontSize="3-xl" />
       <PostFeaturedImage isLink={false} />
-      <PostContent layout={{ type: "constrained" }} />
+      <PostContent layoutType="constrained" />
 
       <Block
         name="wolf-store/theme-index"
@@ -157,10 +137,6 @@ export default (
       </Block>
     </Main>
 
-    <Footer className="wolf-footer" align="full">
-      <Paragraph align="center">Footer reference coverage.</Paragraph>
-    </Footer>
-
-    <TemplatePart slug="footer" tagName="footer" area="footer" theme="seijaku-fse" />
+    <Footer slug="footer" />
   </Page>
 );

@@ -189,6 +189,7 @@ function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } 
     layoutContentSize,
     layoutOrientation,
     layoutJustifyContent,
+    layoutFlexWrap,
     tagName,
   } = node.props;
 
@@ -335,6 +336,14 @@ function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } 
     }
 
     mergedLayout.justifyContent = layoutJustifyContent;
+  }
+
+  if (layoutFlexWrap !== undefined) {
+    if (typeof layoutFlexWrap !== "string" || layoutFlexWrap.length === 0) {
+      throw new Error(`${node.type} layoutFlexWrap must be a non-empty string.`);
+    }
+
+    mergedLayout.flexWrap = layoutFlexWrap;
   }
 
   if (Object.keys(mergedLayout).length > 0) {
