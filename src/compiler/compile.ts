@@ -391,7 +391,9 @@ function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: str
     attrs.style = common.style;
   }
 
-  attrs.layout = common.layout ?? { type: "constrained" };
+  if (common.layout !== undefined) {
+    attrs.layout = common.layout;
+  }
 
   return {
     blockName: "core/group",
