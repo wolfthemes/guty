@@ -36,6 +36,20 @@ function expectRawTextChildren(node: ElementNode): string {
     .join("");
 }
 
+function renderLinkChild(child: ElementNode["children"][number]): string {
+  if (typeof child === "string") return child;
+  if (child.type !== "Link") throw new Error(`Unexpected element <${child.type}> here; only text or <Link> allowed.`);
+  const href = child.props.href;
+  const text = child.props.text;
+  const target = child.props.target;
+  const rel = child.props.rel;
+  if (typeof href !== "string" || href.length === 0) throw new Error("Link requires a non-empty href prop.");
+  if (typeof text !== "string" || text.length === 0) throw new Error("Link requires a non-empty text prop.");
+  const targetAttr = typeof target === "string" ? ` target="${escapeHtml(target)}"` : "";
+  const relAttr = typeof rel === "string" ? ` rel="${escapeHtml(rel)}"` : "";
+  return `<a href="${escapeHtml(href)}"${targetAttr}${relAttr}>${escapeHtml(text)}</a>`;
+}
+
 function compileChildren(children: Child[], ctx: CompileContext): BlockNode[] {
   return children.map((child) => {
     if (typeof child === "string") {
@@ -935,7 +949,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         blockName: "core/list-item",
         attrs: {},
         innerBlocks: [],
-        innerHTML: expectTextChildren(node),
+        innerHTML: node.children.map(renderLinkChild).join(""),
       };
     case "Details":
       if (node.props.summary !== undefined && (typeof node.props.summary !== "string" || node.props.summary.length === 0)) {
@@ -1063,6 +1077,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
 
       return { blockName: "core/post-excerpt", attrs, innerBlocks: [], innerHTML: "" };
     }
+    case "Link":
+      throw new Error("<Link> is only valid as a child of <ListItem>.");
     case "Block": {
       const name = node.props.name;
 

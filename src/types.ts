@@ -21,6 +21,7 @@ export type ComponentType =
   | "Spacer"
   | "List"
   | "ListItem"
+  | "Link"
   | "Details"
   | "Html"
   | "Shortcode"
@@ -213,6 +214,12 @@ export interface ListProps {
 }
 
 export type ListItemProps = Record<string, never>;
+export interface LinkProps {
+  href: string;
+  text: string;
+  target?: string;
+  rel?: string;
+}
 export interface DetailsProps {
   summary?: string;
 }
