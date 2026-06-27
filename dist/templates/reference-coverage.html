@@ -1,0 +1,136 @@
+<!-- wp:template-part {"slug":"header","tagName":"header","area":"header","theme":"seijaku-fse"} /-->
+
+<!-- wp:group {"tagName":"header","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->
+<header class="wp-block-group alignfull wolf-header">
+  <!-- wp:group {"className":"wolf-header__inner","align":"wide","layout":{"type":"flex","justifyContent":"space-between","flexWrap":"nowrap"}} -->
+  <div class="wp-block-group alignwide wolf-header__inner">
+    <!-- wp:pattern {"slug":"seijaku-fse/logo-mark-dark"} /-->
+    <!-- wp:navigation {"overlayMenu":"mobile","className":"wolf-nav","layout":{"type":"flex","justifyContent":"right","flexWrap":"wrap"}} -->
+    <!-- wp:navigation-link {"label":"Home","url":"/"} /-->
+    <!-- wp:navigation-link {"label":"Store","url":"/wordpress-themes"} /-->
+    <!-- wp:button {"className":"wolf-header__cta","linkTarget":"_blank","rel":"noreferrer"} -->
+    <div class="wp-block-button wolf-header__cta"><a class="wp-block-button__link wp-element-button" href="/wordpress-themes" target="_blank" rel="noreferrer">Browse Themes</a></div>
+    <!-- /wp:button -->
+    <!-- /wp:navigation -->
+  </div>
+  <!-- /wp:group -->
+</header>
+<!-- /wp:group -->
+
+<!-- wp:group {"tagName":"main","layout":{"type":"default"}} -->
+<main class="wp-block-group">
+  <!-- wp:cover {"url":"\u003c?php echo esc_url( get_theme_file_uri() . '/assets/images/hero-services.jpg' ); ?\u003e","dimRatio":40,"minHeight":72,"minHeightUnit":"vh","align":"full","className":"wolf-services\u002d\u002dhero is-dark has-texture","style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|9"}}}} -->
+  <div class="wp-block-cover alignfull wolf-services--hero is-dark has-texture" style="padding-top:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--9);min-height:72vh"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-40 has-background-dim"></span><img class="wp-block-cover__image-background" alt="" src="<?php echo esc_url( get_theme_file_uri() . '/assets/images/hero-services.jpg' ); ?>" data-object-fit="cover"/><div class="wp-block-cover__inner-container">
+  <!-- wp:group {"layout":{"type":"constrained","contentSize":"920px"}} -->
+  <div class="wp-block-group">
+    <!-- wp:paragraph {"className":"wolf-eyebrow"} -->
+    <p class="wolf-eyebrow">Reference coverage</p>
+    <!-- /wp:paragraph -->
+    <!-- wp:heading {"level":1,"textAlign":"center","fontSize":"hero"} -->
+    <h1 class="wp-block-heading has-text-align-center has-hero-font-size">Gutenberg output coverage</h1>
+    <!-- /wp:heading -->
+    <!-- wp:paragraph {"align":"center","fontSize":"md"} -->
+    <p class="has-text-align-center has-md-font-size">This source exercises the reference-backed Guty syntax.</p>
+    <!-- /wp:paragraph -->
+    <!-- wp:buttons {"className":"wolf-btn-lg","layout":{"type":"flex","justifyContent":"center"}} -->
+    <div class="wp-block-buttons wolf-btn-lg">
+      <!-- wp:button -->
+      <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/services">Start a Project</a></div>
+      <!-- /wp:button -->
+    </div>
+    <!-- /wp:buttons -->
+  </div>
+  <!-- /wp:group -->
+</div></div>
+<!-- /wp:cover -->
+<!-- wp:group {"tagName":"section","metadata":{"name":"Reference Grid"},"anchor":"reference-grid","backgroundColor":"base-2","className":"wolf-section-pad\u002d\u002dbig","align":"full","layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
+<section class="wp-block-group alignfull has-base-2-background-color has-background wolf-section-pad--big">
+  <!-- wp:columns {"verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|8"}}}} -->
+  <div class="wp-block-columns are-vertically-aligned-center">
+    <!-- wp:column {"className":"wolf-reference__main","width":"60%","layout":{"type":"default"}} -->
+    <div class="wp-block-column wolf-reference__main" style="flex-basis:60%">
+      <!-- wp:image {"align":"center","scale":"cover","sizeSlug":"thumbnail","linkDestination":"none","style":{"border":{"radius":"999px"}},"width":"120px","height":"120px"} -->
+      <figure class="wp-block-image aligncenter size-thumbnail is-resized has-custom-border"><img src="<?php echo esc_url( get_theme_file_uri() . '/assets/images/me.jpg' ); ?>" alt="Reference portrait" width="180" height="180" style="border-radius:999px;object-fit:cover;width:120px;height:120px"/></figure>
+      <!-- /wp:image -->
+      <!-- wp:list {"className":"wolf-reference-list"} -->
+      <ul class="wolf-reference-list">
+        <!-- wp:list-item -->
+        <li>Template parts</li>
+        <!-- /wp:list-item -->
+        <!-- wp:list-item -->
+        <li>Query loops</li>
+        <!-- /wp:list-item -->
+        <!-- wp:list-item -->
+        <li>Raw custom block markup</li>
+        <!-- /wp:list-item -->
+      </ul>
+      <!-- /wp:list -->
+      <!-- wp:details -->
+      <details class="wp-block-details"><summary>What does this cover?</summary>
+      <!-- wp:paragraph -->
+      <p>Core layout, media, text, query, shortcode, HTML, and generic custom blocks.</p>
+      <!-- /wp:paragraph -->
+    </details>
+    <!-- /wp:details -->
+  </div>
+  <!-- /wp:column -->
+  <!-- wp:column {"width":"40%"} -->
+  <div class="wp-block-column" style="flex-basis:40%">
+    <!-- wp:spacer {"height":"var:preset|spacing|5"} -->
+    <div style="height:var(--wp--preset--spacing--5)" aria-hidden="true" class="wp-block-spacer"></div>
+    <!-- /wp:spacer -->
+    <!-- wp:html -->
+    <div class="wolf-reference-html"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
+    <!-- /wp:html -->
+    <!-- wp:shortcode -->
+    [contact-form-7 id="CONTACT_FORM_ID"]
+    <!-- /wp:shortcode -->
+  </div>
+  <!-- /wp:column -->
+</div>
+<!-- /wp:columns -->
+</section>
+<!-- /wp:group -->
+<!-- wp:query {"queryId":0,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"layout":{"type":"constrained"}} -->
+<div class="wp-block-query">
+  <!-- wp:post-template {"style":{"spacing":{"blockGap":"var:preset|spacing|7"}},"layout":{"type":"constrained"}} -->
+  <!-- wp:post-date {"fontSize":"xs"} /-->
+  <!-- wp:post-title {"isLink":true,"fontSize":"2-xl"} /-->
+  <!-- wp:post-excerpt {"moreText":"Read more","excerptLength":28} /-->
+  <!-- /wp:post-template -->
+  <!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"space-between"}} -->
+  <!-- wp:query-pagination-previous /-->
+  <!-- wp:query-pagination-next /-->
+  <!-- /wp:query-pagination -->
+  <!-- wp:query-no-results -->
+  <!-- wp:paragraph {"align":"center"} -->
+  <p class="has-text-align-center">No posts found.</p>
+  <!-- /wp:paragraph -->
+  <!-- /wp:query-no-results -->
+</div>
+<!-- /wp:query -->
+<!-- wp:query-title {"type":"archive","textAlign":"center","fontSize":"3-xl"} /-->
+<!-- wp:post-featured-image {"isLink":false} /-->
+<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+<!-- wp:wolf-store/theme-index {"perPage":12,"theme_cat":"music","pagination":"none","orderby":"featured","order":"DESC","cardHeading":"h3","sidebar":true} /-->
+<!-- wp:wolf-blocks/marquee {"text":" WolfThemes \u003cspan class=\u0022wolf-blocks-marquee__item-separator\u0022\u003e✦\u003c/span\u003e Premium WordPress Themes ","direction":"left","animationDuration":30,"style":{"spacing":{"margin":{"top":"var:preset|spacing|0"}}}} -->
+<div class="wp-block-wolf-blocks-marquee"><div class="wolf-blocks-marquee__track"><span>WolfThemes</span></div></div>
+<!-- /wp:wolf-blocks/marquee -->
+<!-- wp:wolf-blocks/brevo-form {"listId":12345} -->
+<div class="wp-block-wolf-blocks-brevo-form" data-list-id="12345"></div>
+<!-- /wp:wolf-blocks/brevo-form -->
+<!-- wp:wolf-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} -->
+<div class="wp-block-wolf-blocks-stats-counter"><strong>35k</strong><span>Items Sold</span></div>
+<!-- /wp:wolf-blocks/stats-counter -->
+</main>
+<!-- /wp:group -->
+
+<!-- wp:group {"tagName":"footer","className":"wolf-footer","align":"full","layout":{"type":"constrained"}} -->
+<footer class="wp-block-group alignfull wolf-footer">
+  <!-- wp:paragraph {"align":"center"} -->
+  <p class="has-text-align-center">Footer reference coverage.</p>
+  <!-- /wp:paragraph -->
+</footer>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer","area":"footer","theme":"seijaku-fse"} /-->

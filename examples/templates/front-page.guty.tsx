@@ -1,8 +1,8 @@
 <Page>
-  <Section>
-    <Container>
-      <Heading level={1}>Welcome to Wolf Store</Heading>
-      <Paragraph>Built with a minimal Gutenberg TSX compiler.</Paragraph>
-    </Container>
+  <TemplatePart slug="header" tagName="header" area="header" theme="seijaku-fse" />
+  <Section tagName="main" layoutType="default">
+	<Pattern slug="seijaku-fse/home-hero" />
+	<Pattern slug="seijaku-fse/home-featured-themes" />
+	<Pattern slug="seijaku-fse/home-about" />
   </Section>
 </Page>

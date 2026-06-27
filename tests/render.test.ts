@@ -644,6 +644,55 @@ describe("reference-backed core elements", () => {
       innerHTML: "",
     } satisfies BlockDocument["blocks"][number]);
   });
+
+  it("evaluates the reference coverage source and preserves attrs plus saved markup", async () => {
+    const filePath = path.resolve("examples", "templates", "reference-coverage.guty.tsx");
+    const page = await evaluateTemplate(filePath);
+    const markup = normalizeMarkup(serializeDocument(compileDocument(page)));
+
+    expect(markup).toContain(
+      '<!-- wp:template-part {"slug":"header","tagName":"header","area":"header","theme":"seijaku-fse"} /-->',
+    );
+    expect(markup).toContain(
+      '<!-- wp:group {"tagName":"header","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->',
+    );
+    expect(markup).toContain(
+      '<!-- wp:button {"className":"wolf-header__cta","linkTarget":"_blank","rel":"noreferrer"} -->',
+    );
+    expect(markup).toContain('href="/wordpress-themes" target="_blank" rel="noreferrer"');
+    expect(markup).toContain('"anchor":"reference-grid"');
+    expect(markup).toContain('"metadata":{"name":"Reference Grid"}');
+    expect(markup).toContain('<!-- wp:cover');
+    expect(markup).toContain('"dimRatio":40');
+    expect(markup).toContain('"minHeight":72');
+    expect(markup).toContain('"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|9"}');
+    expect(markup).toContain(
+      '<figure class="wp-block-image aligncenter size-thumbnail is-resized has-custom-border"><img src="<?php echo esc_url( get_theme_file_uri() . \'/assets/images/me.jpg\' ); ?>" alt="Reference portrait" width="180" height="180" style="border-radius:999px;object-fit:cover;width:120px;height:120px"/></figure>',
+    );
+    expect(markup).toContain("<!-- wp:shortcode -->");
+    expect(markup).toContain('[contact-form-7 id="CONTACT_FORM_ID"]');
+    expect(markup).toContain("<!-- /wp:shortcode -->");
+    expect(markup).toContain('<!-- wp:query {"queryId":0');
+    expect(markup).toContain('<!-- wp:post-title {"isLink":true,"fontSize":"2-xl"} /-->');
+    expect(markup).toContain(
+      '<!-- wp:wolf-store/theme-index {"perPage":12,"theme_cat":"music","pagination":"none","orderby":"featured","order":"DESC","cardHeading":"h3","sidebar":true} /-->',
+    );
+    expect(markup).toContain('<!-- wp:wolf-blocks/marquee');
+    expect(markup).toContain('"animationDuration":30');
+    expect(markup).toContain('"margin":{"top":"var:preset|spacing|0"}');
+    expect(markup).toContain(
+      '<div class="wp-block-wolf-blocks-marquee"><div class="wolf-blocks-marquee__track"><span>WolfThemes</span></div></div>',
+    );
+    expect(markup).toContain('<!-- wp:wolf-blocks/brevo-form {"listId":12345} -->');
+    expect(markup).toContain('<div class="wp-block-wolf-blocks-brevo-form" data-list-id="12345"></div>');
+    expect(markup).toContain('<!-- wp:wolf-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} -->');
+    expect(markup).toContain(
+      '<div class="wp-block-wolf-blocks-stats-counter"><strong>35k</strong><span>Items Sold</span></div>',
+    );
+    expect(markup).toContain(
+      '<!-- wp:group {"tagName":"footer","className":"wolf-footer","align":"full","layout":{"type":"constrained"}} -->',
+    );
+  });
 });
 
 describe("Header / Navigation / Button", () => {

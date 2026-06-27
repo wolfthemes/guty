@@ -798,11 +798,25 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         throw new Error("Button url must be a non-empty string.");
       }
 
+      for (const key of ["linkTarget", "rel"] as const) {
+        const value = node.props[key];
+
+        if (value !== undefined) {
+          if (typeof value !== "string" || value.length === 0) {
+            throw new Error(`Button ${key} must be a non-empty string.`);
+          }
+
+          attrs[key] = value;
+        }
+      }
+
       const wrapperClass = ["wp-block-button", typeof className === "string" ? className : ""]
         .filter((value) => value.length > 0)
         .join(" ");
       const href = typeof url === "string" ? ` href="${escapeHtml(url)}"` : "";
-      const innerHTML = `<div class="${wrapperClass}"><a class="wp-block-button__link wp-element-button"${href}>${text}</a></div>`;
+      const target = typeof node.props.linkTarget === "string" ? ` target="${escapeHtml(node.props.linkTarget)}"` : "";
+      const rel = typeof node.props.rel === "string" ? ` rel="${escapeHtml(node.props.rel)}"` : "";
+      const innerHTML = `<div class="${wrapperClass}"><a class="wp-block-button__link wp-element-button"${href}${target}${rel}>${text}</a></div>`;
 
       return {
         blockName: "core/button",
