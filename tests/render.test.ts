@@ -297,6 +297,40 @@ describe("compileDocument", () => {
       ],
     } satisfies BlockDocument);
   });
+
+  it("compiles Main as a main-tagged group", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Main",
+          props: { layoutType: "default" },
+          children: [
+            { type: "Pattern", props: { slug: "seijaku-fse/about-intro" }, children: [] },
+          ],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: { tagName: "main", layout: { type: "default" } },
+          innerBlocks: [
+            {
+              blockName: "core/pattern",
+              attrs: { slug: "seijaku-fse/about-intro" },
+              innerBlocks: [],
+              innerHTML: "",
+            },
+          ],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
 });
 
 describe("Pattern", () => {

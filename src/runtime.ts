@@ -7,6 +7,7 @@ import type {
   ColumnsProps,
   ComponentType,
   ContainerProps,
+  MainProps,
   CoverProps,
   DetailsProps,
   ElementNode,
@@ -50,6 +51,7 @@ function component(name: ComponentType): ComponentType {
 export const Page = component("Page");
 export const Section = component("Section");
 export const Container = component("Container");
+export const Main = component("Main");
 export const Columns = component("Columns");
 export const Column = component("Column");
 export const Buttons = component("Buttons");
@@ -129,6 +131,7 @@ declare global {
       Page: PageProps;
       Section: SectionProps;
       Container: ContainerProps;
+      Main: MainProps;
       Columns: ColumnsProps;
       Column: ColumnProps;
       Buttons: ButtonsProps;

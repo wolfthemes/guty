@@ -481,6 +481,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       return groupBlock(node, ctx, "section");
     case "Container":
       return groupBlock(node, ctx);
+    case "Main":
+      return groupBlock(node, ctx, "main");
     case "Columns": {
       const attrs: Record<string, unknown> = {};
       const className = node.props.className;

@@ -23,7 +23,7 @@ export default (
       </Container>
     </Header>
 
-    <Section tagName="main" layout={{ type: "default" }}>
+    <Main layout={{ type: "default" }}>
       <Cover
         url="<?php echo esc_url( get_theme_file_uri() . '/assets/images/hero-services.jpg' ); ?>"
         dimRatio={40}
@@ -155,7 +155,7 @@ export default (
       <Block name="wolf-blocks/stats-counter" title="Items Sold" endNumber={35} suffix="k">
         {`<div class="wp-block-wolf-blocks-stats-counter"><strong>35k</strong><span>Items Sold</span></div>`}
       </Block>
-    </Section>
+    </Main>
 
     <Footer className="wolf-footer" align="full">
       <Paragraph align="center">Footer reference coverage.</Paragraph>

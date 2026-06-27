@@ -8,6 +8,7 @@ const RUNTIME_PREAMBLE = `
 const Page = "Page";
 const Section = "Section";
 const Container = "Container";
+const Main = "Main";
 const Columns = "Columns";
 const Column = "Column";
 const Buttons = "Buttons";
