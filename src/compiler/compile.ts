@@ -646,7 +646,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         throw new Error(`Heading level must be an integer from 1 to 6. Received: ${String(node.props.level)}`);
       }
 
-      const attrs: Record<string, unknown> = level === 2 ? {} : { level };
+      const attrs: Record<string, unknown> = { level };
       const textAlign = textAlignValue(node, "textAlign", node.props.textAlign);
       if (textAlign) {
         attrs.textAlign = textAlign;
