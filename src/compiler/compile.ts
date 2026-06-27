@@ -24,6 +24,18 @@ function expectTextChildren(node: ElementNode): string {
     .join("");
 }
 
+function expectRawTextChildren(node: ElementNode): string {
+  return node.children
+    .map((child) => {
+      if (typeof child !== "string") {
+        throw new Error(`${node.type} only supports raw text children.`);
+      }
+
+      return child;
+    })
+    .join("");
+}
+
 function compileChildren(children: Child[], ctx: CompileContext): BlockNode[] {
   return children.map((child) => {
     if (typeof child === "string") {
@@ -32,6 +44,42 @@ function compileChildren(children: Child[], ctx: CompileContext): BlockNode[] {
 
     return compileNode(child, ctx);
   });
+}
+
+function readNonEmptyString(node: ElementNode, key: string, value: unknown): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`${node.type} ${key} must be a non-empty string.`);
+  }
+
+  return value;
+}
+
+function readBoolean(node: ElementNode, key: string, value: unknown): boolean | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new Error(`${node.type} ${key} must be a boolean. Received: ${String(value)}`);
+  }
+
+  return value;
+}
+
+function readNumber(node: ElementNode, key: string, value: unknown): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`${node.type} ${key} must be a finite number. Received: ${String(value)}`);
+  }
+
+  return value;
 }
 
 const SPACING_SUGAR: Record<string, { axis: "padding" | "margin"; sides: readonly string[] }> = {
@@ -104,6 +152,8 @@ function applyBlockSugar(props: Record<string, unknown>): Record<string, unknown
 }
 
 interface CommonAttrs {
+  anchor?: string;
+  metadata?: Record<string, unknown>;
   className?: string;
   align?: "wide" | "full";
   backgroundColor?: string;
@@ -122,6 +172,7 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } = {}): CommonAttrs {
   const attrs: CommonAttrs = {};
   const {
+    anchor,
     className,
     align,
     backgroundColor,
@@ -130,12 +181,30 @@ function readCommonAttrs(node: ElementNode, options: { allowTagName?: boolean } 
     fontSize,
     fontFamily,
     style,
+    metadata,
     layout,
     layoutType,
     layoutContentSize,
     layoutOrientation,
     tagName,
   } = node.props;
+
+  if (anchor !== undefined) {
+    if (typeof anchor !== "string" || anchor.length === 0) {
+      throw new Error(`${node.type} anchor must be a non-empty string.`);
+    }
+
+    attrs.anchor = anchor;
+  }
+
+  if (metadata !== undefined) {
+    const metadataRecord = asRecord(metadata);
+    if (!metadataRecord) {
+      throw new Error(`${node.type} metadata must be an object.`);
+    }
+
+    attrs.metadata = metadataRecord;
+  }
 
   if (className !== undefined) {
     if (typeof className !== "string" || className.length === 0) {
@@ -284,6 +353,14 @@ function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: str
     attrs.tagName = tagName;
   }
 
+  if (common.metadata) {
+    attrs.metadata = common.metadata;
+  }
+
+  if (common.anchor) {
+    attrs.anchor = common.anchor;
+  }
+
   if (common.backgroundColor) {
     attrs.backgroundColor = common.backgroundColor;
   }
@@ -320,6 +397,68 @@ function groupBlock(node: ElementNode, ctx: CompileContext, defaultTagName?: str
     innerBlocks: compileChildren(node.children, ctx),
     innerHTML: "",
   };
+}
+
+function commonContainerBlock(
+  node: ElementNode,
+  ctx: CompileContext,
+  blockName: string,
+  attrs: Record<string, unknown>,
+): BlockNode {
+  return {
+    blockName,
+    attrs,
+    innerBlocks: compileChildren(node.children, ctx),
+    innerHTML: "",
+  };
+}
+
+function readPlainObjectAttr(node: ElementNode, attrs: Record<string, unknown>, key: string): void {
+  const value = node.props[key];
+
+  if (value === undefined) {
+    return;
+  }
+
+  const record = asRecord(value);
+  if (!record) {
+    throw new Error(`${node.type} ${key} must be an object.`);
+  }
+
+  attrs[key] = record;
+}
+
+function readStringAttr(node: ElementNode, attrs: Record<string, unknown>, key: string): void {
+  const value = readNonEmptyString(node, key, node.props[key]);
+  if (value !== undefined) {
+    attrs[key] = value;
+  }
+}
+
+function readNumberAttr(node: ElementNode, attrs: Record<string, unknown>, key: string): void {
+  const value = readNumber(node, key, node.props[key]);
+  if (value !== undefined) {
+    attrs[key] = value;
+  }
+}
+
+function readBooleanAttr(node: ElementNode, attrs: Record<string, unknown>, key: string): void {
+  const value = readBoolean(node, key, node.props[key]);
+  if (value !== undefined) {
+    attrs[key] = value;
+  }
+}
+
+function textAlignValue(node: ElementNode, key: string, value: unknown): "left" | "center" | "right" | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value !== "left" && value !== "center" && value !== "right") {
+    throw new Error(`${node.type} ${key} must be "left", "center", or "right". Received: ${String(value)}`);
+  }
+
+  return value;
 }
 
 function readVerticalAlignment(node: ElementNode, prop: unknown): "top" | "center" | "bottom" | undefined {
@@ -359,6 +498,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         attrs.verticalAlignment = verticalAlignment;
       }
 
+      readPlainObjectAttr(node, attrs, "style");
+
       return {
         blockName: "core/columns",
         attrs,
@@ -392,6 +533,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         attrs.verticalAlignment = verticalAlignment;
       }
 
+      readPlainObjectAttr(node, attrs, "layout");
+
       return {
         blockName: "core/column",
         attrs,
@@ -399,8 +542,18 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         innerHTML: "",
       };
     }
+    case "Buttons": {
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "className");
+      readPlainObjectAttr(node, attrs, "style");
+      readPlainObjectAttr(node, attrs, "layout");
+
+      return commonContainerBlock(node, ctx, "core/buttons", attrs);
+    }
     case "Header":
       return groupBlock(node, ctx, "header");
+    case "Footer":
+      return groupBlock(node, ctx, "footer");
     case "SiteLogo": {
       if (node.children.length > 0) {
         throw new Error("SiteLogo is a void block and cannot have children.");
@@ -465,14 +618,13 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       }
 
       const attrs: Record<string, unknown> = level === 2 ? {} : { level };
-      const className = node.props.className;
-      if (className !== undefined) {
-        if (typeof className !== "string" || className.length === 0) {
-          throw new Error("Heading className must be a non-empty string.");
-        }
-
-        attrs.className = className;
+      const textAlign = textAlignValue(node, "textAlign", node.props.textAlign);
+      if (textAlign) {
+        attrs.textAlign = textAlign;
       }
+      readStringAttr(node, attrs, "className");
+      readPlainObjectAttr(node, attrs, "style");
+      readStringAttr(node, attrs, "fontSize");
 
       return {
         blockName: "core/heading",
@@ -483,20 +635,41 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
     }
     case "Paragraph": {
       const attrs: Record<string, unknown> = {};
-      const className = node.props.className;
-      if (className !== undefined) {
-        if (typeof className !== "string" || className.length === 0) {
-          throw new Error("Paragraph className must be a non-empty string.");
-        }
-
-        attrs.className = className;
+      const align = textAlignValue(node, "align", node.props.align);
+      if (align) {
+        attrs.align = align;
       }
+      readStringAttr(node, attrs, "className");
+      readPlainObjectAttr(node, attrs, "style");
+      readStringAttr(node, attrs, "fontSize");
 
       return {
         blockName: "core/paragraph",
         attrs,
         innerBlocks: [],
         innerHTML: expectTextChildren(node),
+      };
+    }
+    case "TemplatePart": {
+      if (node.children.length > 0) {
+        throw new Error("TemplatePart is a void block and cannot have children.");
+      }
+
+      const slug = readNonEmptyString(node, "slug", node.props.slug);
+      if (!slug) {
+        throw new Error("TemplatePart requires a non-empty slug prop.");
+      }
+
+      const attrs: Record<string, unknown> = { slug };
+      readStringAttr(node, attrs, "tagName");
+      readStringAttr(node, attrs, "area");
+      readStringAttr(node, attrs, "theme");
+
+      return {
+        blockName: "core/template-part",
+        attrs,
+        innerBlocks: [],
+        innerHTML: "",
       };
     }
     case "Pattern": {
@@ -637,6 +810,206 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         innerBlocks: [],
         innerHTML,
       };
+    }
+    case "Cover": {
+      const common = readCommonAttrs(node);
+      const attrs: Record<string, unknown> = {};
+
+      readStringAttr(node, attrs, "url");
+      readNumberAttr(node, attrs, "dimRatio");
+      readNumberAttr(node, attrs, "minHeight");
+      readStringAttr(node, attrs, "minHeightUnit");
+
+      for (const key of ["align", "className", "style"] as const) {
+        if (common[key]) {
+          attrs[key] = common[key];
+        }
+      }
+
+      return commonContainerBlock(node, ctx, "core/cover", attrs);
+    }
+    case "Image": {
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "className");
+      readStringAttr(node, attrs, "align");
+      readStringAttr(node, attrs, "scale");
+      readStringAttr(node, attrs, "sizeSlug");
+      readStringAttr(node, attrs, "linkDestination");
+      readPlainObjectAttr(node, attrs, "style");
+
+      for (const key of ["width", "height"] as const) {
+        const value = node.props[key];
+        if (value === undefined) {
+          continue;
+        }
+
+        if ((typeof value !== "string" || value.length === 0) && typeof value !== "number") {
+          throw new Error(`${node.type} ${key} must be a non-empty string or number.`);
+        }
+
+        attrs[key] = value;
+      }
+
+      return {
+        blockName: "core/image",
+        attrs,
+        innerBlocks: [],
+        innerHTML: node.children.length > 0 ? expectRawTextChildren(node) : "",
+      };
+    }
+    case "Spacer": {
+      if (node.children.length > 0) {
+        throw new Error("Spacer is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "height");
+
+      return {
+        blockName: "core/spacer",
+        attrs,
+        innerBlocks: [],
+        innerHTML: "",
+      };
+    }
+    case "List": {
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "className");
+
+      return commonContainerBlock(node, ctx, "core/list", attrs);
+    }
+    case "ListItem":
+      return {
+        blockName: "core/list-item",
+        attrs: {},
+        innerBlocks: [],
+        innerHTML: expectTextChildren(node),
+      };
+    case "Details":
+      if (node.props.summary !== undefined && (typeof node.props.summary !== "string" || node.props.summary.length === 0)) {
+        throw new Error("Details summary must be a non-empty string.");
+      }
+
+      return {
+        blockName: "core/details",
+        attrs: {},
+        innerBlocks: compileChildren(node.children, ctx),
+        innerHTML: typeof node.props.summary === "string" ? escapeHtml(node.props.summary) : "",
+      };
+    case "Html":
+      return {
+        blockName: "core/html",
+        attrs: {},
+        innerBlocks: [],
+        innerHTML: expectRawTextChildren(node),
+      };
+    case "Shortcode":
+      return {
+        blockName: "core/shortcode",
+        attrs: {},
+        innerBlocks: [],
+        innerHTML: expectRawTextChildren(node),
+      };
+    case "Query": {
+      const attrs: Record<string, unknown> = {};
+      readNumberAttr(node, attrs, "queryId");
+      readPlainObjectAttr(node, attrs, "query");
+      readPlainObjectAttr(node, attrs, "layout");
+
+      return commonContainerBlock(node, ctx, "core/query", attrs);
+    }
+    case "PostTemplate": {
+      const attrs: Record<string, unknown> = {};
+      readPlainObjectAttr(node, attrs, "style");
+      readPlainObjectAttr(node, attrs, "layout");
+
+      return commonContainerBlock(node, ctx, "core/post-template", attrs);
+    }
+    case "QueryPagination": {
+      const attrs: Record<string, unknown> = {};
+      readPlainObjectAttr(node, attrs, "layout");
+
+      return commonContainerBlock(node, ctx, "core/query-pagination", attrs);
+    }
+    case "QueryPaginationPrevious":
+      return { blockName: "core/query-pagination-previous", attrs: {}, innerBlocks: [], innerHTML: "" };
+    case "QueryPaginationNext":
+      return { blockName: "core/query-pagination-next", attrs: {}, innerBlocks: [], innerHTML: "" };
+    case "QueryNoResults":
+      return commonContainerBlock(node, ctx, "core/query-no-results", {});
+    case "QueryTitle": {
+      if (node.children.length > 0) {
+        throw new Error("QueryTitle is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "type");
+      const textAlign = textAlignValue(node, "textAlign", node.props.textAlign);
+      if (textAlign) {
+        attrs.textAlign = textAlign;
+      }
+      readStringAttr(node, attrs, "fontSize");
+
+      return { blockName: "core/query-title", attrs, innerBlocks: [], innerHTML: "" };
+    }
+    case "PostTitle": {
+      if (node.children.length > 0) {
+        throw new Error("PostTitle is a void block and cannot have children.");
+      }
+
+      const level = node.props.level === undefined ? undefined : Number(node.props.level);
+      const attrs: Record<string, unknown> = {};
+      if (level !== undefined) {
+        if (!Number.isInteger(level) || level < 1 || level > 6) {
+          throw new Error(`PostTitle level must be an integer from 1 to 6. Received: ${String(node.props.level)}`);
+        }
+        attrs.level = level;
+      }
+      readBooleanAttr(node, attrs, "isLink");
+      readStringAttr(node, attrs, "fontSize");
+
+      return { blockName: "core/post-title", attrs, innerBlocks: [], innerHTML: "" };
+    }
+    case "PostDate": {
+      if (node.children.length > 0) {
+        throw new Error("PostDate is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "fontSize");
+
+      return { blockName: "core/post-date", attrs, innerBlocks: [], innerHTML: "" };
+    }
+    case "PostContent": {
+      if (node.children.length > 0) {
+        throw new Error("PostContent is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readPlainObjectAttr(node, attrs, "layout");
+
+      return { blockName: "core/post-content", attrs, innerBlocks: [], innerHTML: "" };
+    }
+    case "PostFeaturedImage": {
+      if (node.children.length > 0) {
+        throw new Error("PostFeaturedImage is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readBooleanAttr(node, attrs, "isLink");
+
+      return { blockName: "core/post-featured-image", attrs, innerBlocks: [], innerHTML: "" };
+    }
+    case "PostExcerpt": {
+      if (node.children.length > 0) {
+        throw new Error("PostExcerpt is a void block and cannot have children.");
+      }
+
+      const attrs: Record<string, unknown> = {};
+      readStringAttr(node, attrs, "moreText");
+      readNumberAttr(node, attrs, "excerptLength");
+
+      return { blockName: "core/post-excerpt", attrs, innerBlocks: [], innerHTML: "" };
     }
     case "Block": {
       const name = node.props.name;

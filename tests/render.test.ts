@@ -423,7 +423,273 @@ describe("SiteLogo", () => {
   });
 });
 
+describe("reference-backed core elements", () => {
+  it("compiles template parts, button groups, and text attrs", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        { type: "TemplatePart", props: { slug: "header", tagName: "header", area: "header" }, children: [] },
+        {
+          type: "Section",
+          props: { tagName: "main", layout: { type: "default" }, anchor: "content" },
+          children: [
+            {
+              type: "Buttons",
+              props: { className: "wolf-actions", layout: { type: "flex", justifyContent: "center" } },
+              children: [{ type: "Button", props: { url: "/store" }, children: ["Browse"] }],
+            },
+            {
+              type: "Heading",
+              props: { level: 1, textAlign: "center", fontSize: "hero" },
+              children: ["Title"],
+            },
+            {
+              type: "Paragraph",
+              props: { align: "center", fontSize: "base" },
+              children: ["Intro"],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/template-part",
+          attrs: { slug: "header", tagName: "header", area: "header" },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+        {
+          blockName: "core/group",
+          attrs: { tagName: "main", anchor: "content", layout: { type: "default" } },
+          innerBlocks: [
+            {
+              blockName: "core/buttons",
+              attrs: { className: "wolf-actions", layout: { type: "flex", justifyContent: "center" } },
+              innerBlocks: [
+                {
+                  blockName: "core/button",
+                  attrs: {},
+                  innerBlocks: [],
+                  innerHTML:
+                    '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/store">Browse</a></div>',
+                },
+              ],
+              innerHTML: "",
+            },
+            {
+              blockName: "core/heading",
+              attrs: { level: 1, textAlign: "center", fontSize: "hero" },
+              innerBlocks: [],
+              innerHTML: "Title",
+            },
+            {
+              blockName: "core/paragraph",
+              attrs: { align: "center", fontSize: "base" },
+              innerBlocks: [],
+              innerHTML: "Intro",
+            },
+          ],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
+  it("serializes cover, image, spacer, list, and details blocks", () => {
+    const document: BlockDocument = {
+      blocks: [
+        {
+          blockName: "core/cover",
+          attrs: {
+            url: "/hero.jpg",
+            dimRatio: 40,
+            minHeight: 72,
+            minHeightUnit: "vh",
+            align: "full",
+            className: "hero",
+          },
+          innerBlocks: [
+            {
+              blockName: "core/heading",
+              attrs: { textAlign: "center", level: 1, fontSize: "hero" },
+              innerBlocks: [],
+              innerHTML: "Hello",
+            },
+          ],
+          innerHTML: "",
+        },
+        {
+          blockName: "core/image",
+          attrs: {
+            width: "120px",
+            height: "120px",
+            scale: "cover",
+            sizeSlug: "thumbnail",
+            linkDestination: "none",
+            align: "center",
+            style: { border: { radius: "999px" } },
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+        { blockName: "core/spacer", attrs: { height: "var:preset|spacing|5" }, innerBlocks: [], innerHTML: "" },
+        {
+          blockName: "core/list",
+          attrs: { className: "features" },
+          innerBlocks: [
+            { blockName: "core/list-item", attrs: {}, innerBlocks: [], innerHTML: "Fast" },
+            { blockName: "core/list-item", attrs: {}, innerBlocks: [], innerHTML: "Flexible" },
+          ],
+          innerHTML: "",
+        },
+        {
+          blockName: "core/details",
+          attrs: {},
+          innerBlocks: [{ blockName: "core/paragraph", attrs: {}, innerBlocks: [], innerHTML: "Answer" }],
+          innerHTML: "Question?",
+        },
+      ],
+    };
+
+    const markup = normalizeMarkup(serializeDocument(document));
+    expect(markup).toContain(
+      '<!-- wp:cover {"url":"/hero.jpg","dimRatio":40,"minHeight":72,"minHeightUnit":"vh","align":"full","className":"hero"} -->',
+    );
+    expect(markup).toContain(
+      '<div class="wp-block-cover alignfull hero" style="min-height:72vh"><span aria-hidden="true" class="wp-block-cover__background has-background-dim-40 has-background-dim"></span><img class="wp-block-cover__image-background" alt="" src="/hero.jpg" data-object-fit="cover"/><div class="wp-block-cover__inner-container">',
+    );
+    expect(markup).toContain('<h1 class="wp-block-heading has-text-align-center has-hero-font-size">Hello</h1>');
+    expect(markup).toContain(
+      '<figure class="wp-block-image aligncenter size-thumbnail has-custom-border is-resized"><img alt="" style="border-radius:999px;object-fit:cover;width:120px;height:120px"/></figure>',
+    );
+    expect(markup).toContain(
+      '<div style="height:var(--wp--preset--spacing--5)" aria-hidden="true" class="wp-block-spacer"></div>',
+    );
+    expect(markup).toContain('<ul class="features"><!-- wp:list-item --><li>Fast</li>');
+    expect(markup).toContain('<details class="wp-block-details"><summary>Question?</summary>');
+  });
+
+  it("compiles query template blocks used by archive templates", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Query",
+          props: {
+            queryId: 0,
+            query: { perPage: 10, postType: "post", inherit: true },
+            layout: { type: "constrained" },
+          },
+          children: [
+            {
+              type: "PostTemplate",
+              props: { style: { spacing: { blockGap: "var:preset|spacing|7" } } },
+              children: [
+                { type: "PostDate", props: { fontSize: "xs" }, children: [] },
+                { type: "PostTitle", props: { isLink: true, fontSize: "2-xl" }, children: [] },
+                { type: "PostExcerpt", props: { moreText: "Read more", excerptLength: 28 }, children: [] },
+              ],
+            },
+            {
+              type: "QueryPagination",
+              props: { layout: { type: "flex", justifyContent: "space-between" } },
+              children: [
+                { type: "QueryPaginationPrevious", props: {}, children: [] },
+                { type: "QueryPaginationNext", props: {}, children: [] },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(compileDocument(page).blocks[0]).toEqual({
+      blockName: "core/query",
+      attrs: {
+        queryId: 0,
+        query: { perPage: 10, postType: "post", inherit: true },
+        layout: { type: "constrained" },
+      },
+      innerBlocks: [
+        {
+          blockName: "core/post-template",
+          attrs: { style: { spacing: { blockGap: "var:preset|spacing|7" } } },
+          innerBlocks: [
+            { blockName: "core/post-date", attrs: { fontSize: "xs" }, innerBlocks: [], innerHTML: "" },
+            { blockName: "core/post-title", attrs: { isLink: true, fontSize: "2-xl" }, innerBlocks: [], innerHTML: "" },
+            {
+              blockName: "core/post-excerpt",
+              attrs: { moreText: "Read more", excerptLength: 28 },
+              innerBlocks: [],
+              innerHTML: "",
+            },
+          ],
+          innerHTML: "",
+        },
+        {
+          blockName: "core/query-pagination",
+          attrs: { layout: { type: "flex", justifyContent: "space-between" } },
+          innerBlocks: [
+            { blockName: "core/query-pagination-previous", attrs: {}, innerBlocks: [], innerHTML: "" },
+            { blockName: "core/query-pagination-next", attrs: {}, innerBlocks: [], innerHTML: "" },
+          ],
+          innerHTML: "",
+        },
+      ],
+      innerHTML: "",
+    } satisfies BlockDocument["blocks"][number]);
+  });
+});
+
 describe("Header / Navigation / Button", () => {
+  it("compiles Footer as a footer-tagged group", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Footer",
+          props: { className: "wolf-footer", align: "full" },
+          children: [
+            {
+              type: "Paragraph",
+              props: {},
+              children: ["Footer"],
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/group",
+          attrs: {
+            tagName: "footer",
+            className: "wolf-footer",
+            align: "full",
+            layout: { type: "constrained" },
+          },
+          innerBlocks: [
+            {
+              blockName: "core/paragraph",
+              attrs: {},
+              innerBlocks: [],
+              innerHTML: "Footer",
+            },
+          ],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
   it("compiles a header part into a Gutenberg block tree", async () => {
     const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
     const filePath = path.join(root, "header.guty.tsx");
