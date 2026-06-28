@@ -1,9 +1,9 @@
 <Page>
 	<Header slug="header" />
 	<Main>
-		<Pattern slug="seijaku-fse/contact-intro" />
-		<Pattern slug="seijaku-fse/contact-options" />
-		<Pattern slug="seijaku-fse/contact-form" />
+		<Pattern slug="guty-demo/contact-intro" />
+		<Pattern slug="guty-demo/contact-options" />
+		<Pattern slug="guty-demo/contact-form" />
 	</Main>
 	<Footer slug="footer" />
 </Page>

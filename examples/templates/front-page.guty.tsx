@@ -1,10 +1,10 @@
 <Page>
 	<Header slug="header" />
 	<Main layoutType="default">
-		<Pattern slug="seijaku-fse/home-hero" />
-		<Pattern slug="seijaku-fse/home-featured-themes" />
-		<Pattern slug="seijaku-fse/home-about" />
-		<Pattern slug="seijaku-fse/home-music-themes-cta" />
+		<Pattern slug="guty-demo/home-hero" />
+		<Pattern slug="guty-demo/home-featured-items" />
+		<Pattern slug="guty-demo/home-about" />
+		<Pattern slug="guty-demo/home-featured-examples-cta" />
 	</Main>
 	<Footer slug="footer" />
 </Page>

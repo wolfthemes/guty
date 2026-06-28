@@ -1,8 +1,8 @@
 // @guty pattern
 // title: CTA
-// slug: seijaku-fse/cta
+// slug: guty-demo/cta
 // categories: text
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
 </Page>

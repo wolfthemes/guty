@@ -1,12 +1,12 @@
 // @guty pattern
 // title: Logo Mark Dark
-// slug: seijaku-fse/logo-mark-dark
+// slug: guty-demo/logo-mark-dark
 // categories: header
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
-	<Html>{`<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="wolf-logo-link" aria-label="WolfThemes">
+	<Html>{`<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="demo-logo-link" aria-label="Example Studio">
 	<img src="<?php echo esc_url( get_theme_file_uri( '/assets/images/logo-black.svg' ) ); ?>"
-		class="wolf-logo" alt="WolfThemes" width="150" height="auto">
+		class="demo-logo" alt="Example Studio" width="150" height="auto">
 </a>`}</Html>
 </Page>

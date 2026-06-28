@@ -1,9 +1,9 @@
 // @guty pattern
 // title: About CTA
-// slug: seijaku-fse/about-cta
+// slug: guty-demo/about-cta
 // categories: about, call-to-action
-// description: A dark call to action for browsing themes.
-// package: SeijakuFSE
+// description: A dark call to action for browsing templates.
+// package: GutyDemo
 
 <Page>
 	<Section
@@ -16,9 +16,9 @@
 		layoutType="constrained"
 		layoutContentSize="820px"
 	>
-		<Heading level={2} textAlign="center">Looking for a theme that feels right for your project?</Heading>
-		<Buttons className="wolf-btn-lg" layoutType="flex" layoutJustifyContent="center">
-			<Button url="/wordpress-themes">Browse Themes</Button>
+		<Heading level={2} textAlign="center">Looking for a example that feels right for your project?</Heading>
+		<Buttons className="demo-btn-lg" layoutType="flex" layoutJustifyContent="center">
+			<Button url="/examples">View Examples</Button>
 		</Buttons>
 	</Section>
 </Page>

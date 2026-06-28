@@ -1,9 +1,9 @@
 // @guty pattern
 // title: Services Hero
-// slug: seijaku-fse/services-hero
+// slug: guty-demo/services-hero
 // categories: hero, services
 // description: A dark hero section for the Services page.
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
 	<Cover
@@ -12,16 +12,16 @@
 		minHeight={72}
 		minHeightUnit="vh"
 		align="full"
-		className="wolf-services--hero is-dark has-texture"
+		className="demo-services--hero is-dark has-texture"
 		pt={10}
 		pb={9}
 	>
 		<Container layoutType="constrained" layoutContentSize="920px">
-			<Paragraph className="wolf-eyebrow">WolfThemes Services</Paragraph>
+			<Paragraph className="demo-eyebrow">Example Studio Services</Paragraph>
 			<Heading level={1} fontSize="hero">Installation &amp; Customization Services</Heading>
-			<Paragraph fontSize="md">{`Fast, hassle-free setup for WolfThemes WordPress themes,<br> from clean installation to custom website setup.`}</Paragraph>
+			<Paragraph fontSize="md">{`Fast, hassle-free setup for Example Studio example pages,<br> from clean installation to custom website setup.`}</Paragraph>
 			<Buttons>
-				<Button className="wolf-btn-lg" url="/contact">Start a project</Button>
+				<Button className="demo-btn-lg" url="/contact">Start a project</Button>
 			</Buttons>
 		</Container>
 	</Cover>

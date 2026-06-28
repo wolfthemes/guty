@@ -1,29 +1,29 @@
 // @guty pattern
 // title: Services Pricing
-// slug: seijaku-fse/services-pricing
+// slug: guty-demo/services-pricing
 // categories: columns, services
-// description: Pricing cards for WolfThemes setup and customization services.
-// package: SeijakuFSE
+// description: Pricing cards for Example Studio setup and customization services.
+// package: GutyDemo
 
 <Page>
 	<Section
 		align="full"
-		className="wolf-section-pad--big"
+		className="demo-section-pad--big"
 		layoutType="constrained"
 		layoutContentSize="var(--wp--style--global--wide-size)"
 	>
 		<Heading level={2} textAlign="center">Services and pricing</Heading>
-		<Paragraph textAlign="center" className="wolf-tagline">Choose the level of help you need, from a focused performance pass to a complete custom website setup.</Paragraph>
+		<Paragraph textAlign="center" className="demo-tagline">Choose the level of help you need, from a focused performance pass to a complete custom website setup.</Paragraph>
 		<Spacer height="var:preset|spacing|5" />
-		<Columns className="wolf-section-pad--small">
+		<Columns className="demo-section-pad--small">
 			<Column layoutType="default">
-				<Block name="wolf-blocks/pricing-table" tagline="Theme not included" title="Speed Optimization" price={39} buttonText="Order Now" buttonUrl="https://www.paypal.com/ncp/payment/TJB86HQUEAEX4" services={["Performance optimization","Browser caching setup","Minification of CSS and JS"]} />
+				<Block name="demo-blocks/pricing-table" tagline="Content not included" title="Performance Review" price={39} buttonText="Order Now" buttonUrl="https://example.com/checkout" services={["Performance optimization","Browser caching setup","Minification of CSS and JS"]} />
 			</Column>
 			<Column>
-				<Block name="wolf-blocks/pricing-table" tagline="Theme not included" title="Basic Installation" price={49} buttonText="Order Now" buttonUrl="https://www.paypal.com/ncp/payment/QRK8XZUPP7482" services={["Theme Installation","Demo Data Import"]} />
+				<Block name="demo-blocks/pricing-table" tagline="Content not included" title="Basic Setup" price={49} buttonText="Order Now" buttonUrl="https://example.com/checkout" services={["Example Setup","Sample Content Import"]} />
 			</Column>
 			<Column>
-				<Block name="wolf-blocks/pricing-table" tagline="Theme not included" title="Complete Installation" price={69} buttonText="Order Now" buttonUrl="https://www.paypal.com/ncp/payment/3FGUFHZU49H8Q" featured={true} featuredText="Recommended" services={["Theme Installation","Demo Data Import","Speed Optimization"]} />
+				<Block name="demo-blocks/pricing-table" tagline="Content not included" title="Complete Setup" price={69} buttonText="Order Now" buttonUrl="https://example.com/checkout" featured={true} featuredText="Recommended" services={["Example Setup","Sample Content Import","Performance Review"]} />
 			</Column>
 		</Columns>
 	</Section>

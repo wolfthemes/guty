@@ -1,6 +1,6 @@
 <Page>
 	<Header slug="header" />
-	<Main className="wolf-section-pad--big" layoutType="constrained">
+	<Main className="demo-section-pad--big" layoutType="constrained">
 		<Container align="wide" layoutType="constrained" layoutContentSize="44rem">
 			<Container style={{ spacing: { blockGap: "var:preset|spacing|5" } }} layoutType="constrained">
 				<PostDate fontSize="xs" />

@@ -1,10 +1,10 @@
 <?php
 /**
  * Title: CTA
- * Slug: seijaku-fse/cta
+ * Slug: guty-demo/cta
  * Categories: text
  *
- * @package SeijakuFSE
+ * @package GutyDemo
  */
 
 ?>

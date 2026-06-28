@@ -1,33 +1,33 @@
 <Page>
-	<Pattern slug="seijaku-fse/sale-marquee" />
+	<Pattern slug="guty-demo/sale-marquee" />
 	<Container
 		tagName="header"
-		className="wolf-header"
+		className="demo-header"
 		align="full"
 		layoutType="constrained"
 	>
 		<Container
 			align="wide"
-			className="wolf-header__inner"
+			className="demo-header__inner"
 			layoutType="flex"
 			layoutJustifyContent="space-between"
 			layoutFlexWrap="nowrap"
 		>
-			<Pattern slug="seijaku-fse/logo-mark-dark" />
+			<Pattern slug="guty-demo/logo-mark-dark" />
 			<Navigation
 				overlayMenu="mobile"
-				className="wolf-nav"
+				className="demo-nav"
 				layoutType="flex"
 				layoutJustifyContent="right"
 				layoutFlexWrap="wrap"
 			>
 				<NavigationLink label="Home" url="/" />
-				<NavigationLink label="Store" url="/wordpress-themes" />
+				<NavigationLink label="Projects" url="/examples" />
 				<NavigationLink label="Services" url="/services" />
 				<NavigationLink label="Contact" url="/contact" />
-				<Button className="wolf-header__cta wolf-header__cta--drawer" url="/wordpress-themes">Browse Themes</Button>
+				<Button className="demo-header__cta demo-header__cta--drawer" url="/examples">View Examples</Button>
 			</Navigation>
-			<Button className="wolf-header__cta" url="/wordpress-themes">Browse Themes</Button>
+			<Button className="demo-header__cta" url="/examples">View Examples</Button>
 		</Container>
 	</Container>
 </Page>

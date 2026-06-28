@@ -9,19 +9,19 @@ export default (
         minHeight={72}
         minHeightUnit="vh"
         align="full"
-        className="wolf-services--hero is-dark has-texture"
+        className="demo-services--hero is-dark has-texture"
         pt={10}
         pb={9}
       >
         <Container layoutType="constrained" layoutContentSize="920px">
-          <Paragraph className="wolf-eyebrow">Reference coverage</Paragraph>
+          <Paragraph className="demo-eyebrow">Reference coverage</Paragraph>
           <Heading level={1} textAlign="center" fontSize="hero">
             Gutenberg output coverage
           </Heading>
           <Paragraph textAlign="center" fontSize="md">
             This source exercises the reference-backed Guty syntax.
           </Paragraph>
-          <Buttons className="wolf-btn-lg" layoutType="flex" layoutJustifyContent="center">
+          <Buttons className="demo-btn-lg" layoutType="flex" layoutJustifyContent="center">
             <Button url="/services">Start a Project</Button>
           </Buttons>
         </Container>
@@ -32,13 +32,13 @@ export default (
         anchor="reference-grid"
         align="full"
         backgroundColor="base-2"
-        className="wolf-section-pad--big"
+        className="demo-section-pad--big"
         metadata={{ name: "Reference Grid" }}
         layoutType="constrained"
         layoutContentSize="var(--wp--style--global--wide-size)"
       >
         <Columns verticalAlignment="center" style={{ spacing: { blockGap: { left: "var:preset|spacing|8" } } }}>
-          <Column width="60%" className="wolf-reference__main" layoutType="default">
+          <Column width="60%" className="demo-reference__main" layoutType="default">
             <Image
               width="120px"
               height="120px"
@@ -51,8 +51,8 @@ export default (
               {`<figure class="wp-block-image aligncenter size-thumbnail is-resized has-custom-border"><img src="<?php echo esc_url( get_theme_file_uri() . '/assets/images/me.jpg' ); ?>" alt="Reference portrait" width="180" height="180" style="border-radius:999px;object-fit:cover;width:120px;height:120px"/></figure>`}
             </Image>
 
-            <List className="wolf-reference-list">
-              <ListItem>Template parts</ListItem>
+            <List className="demo-reference-list">
+              <ListItem>Example parts</ListItem>
               <ListItem>Query loops</ListItem>
               <ListItem>Raw custom block markup</ListItem>
             </List>
@@ -66,7 +66,7 @@ export default (
 
           <Column width="40%">
             <Spacer height="var:preset|spacing|5" />
-            <Html>{`<div class="wolf-reference-html"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>`}</Html>
+            <Html>{`<div class="demo-reference-html"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>`}</Html>
             <Shortcode>{`[contact-form-7 id="CONTACT_FORM_ID"]`}</Shortcode>
           </Column>
         </Columns>
@@ -108,9 +108,9 @@ export default (
       <PostContent layoutType="constrained" />
 
       <Block
-        name="wolf-store/theme-index"
+        name="demo-store/example-index"
         perPage={12}
-        theme_cat="music"
+        theme_cat="featured"
         pagination="none"
         orderby="featured"
         order="DESC"
@@ -119,21 +119,21 @@ export default (
       />
 
       <Block
-        name="wolf-blocks/marquee"
-        text={` WolfThemes <span class="wolf-blocks-marquee__item-separator">✦</span> Premium WordPress Themes `}
+        name="demo-blocks/marquee"
+        text={` Example Studio <span class="demo-blocks-marquee__item-separator">✦</span> Example Project Pages `}
         direction="left"
         animationDuration={30}
         mt={0}
       >
-        {`<div class="wp-block-wolf-blocks-marquee"><div class="wolf-blocks-marquee__track"><span>WolfThemes</span></div></div>`}
+        {`<div class="wp-block-demo-blocks-marquee"><div class="demo-blocks-marquee__track"><span>Example Studio</span></div></div>`}
       </Block>
 
-      <Block name="wolf-blocks/brevo-form" listId={12345}>
-        {`<div class="wp-block-wolf-blocks-brevo-form" data-list-id="12345"></div>`}
+      <Block name="demo-blocks/brevo-form" listId={12345}>
+        {`<div class="wp-block-demo-blocks-brevo-form" data-list-id="12345"></div>`}
       </Block>
 
-      <Block name="wolf-blocks/stats-counter" title="Items Sold" endNumber={35} suffix="k">
-        {`<div class="wp-block-wolf-blocks-stats-counter"><strong>35k</strong><span>Items Sold</span></div>`}
+      <Block name="demo-blocks/stats-counter" title="Items Sold" endNumber={35} suffix="k">
+        {`<div class="wp-block-demo-blocks-stats-counter"><strong>2.4k</strong><span>Items Sold</span></div>`}
       </Block>
     </Main>
 

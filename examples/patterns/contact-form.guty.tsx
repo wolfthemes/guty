@@ -1,16 +1,16 @@
 // @guty pattern
 // title: Contact Form
-// slug: seijaku-fse/contact-form
+// slug: guty-demo/contact-form
 // categories: contact, text
 // description: A narrow placeholder section for a contact form shortcode.
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
 	<Section
 		anchor="contact-form"
 		metadata={{ name: "Contact form" }}
 		align="full"
-		className="wolf-section-pad--big"
+		className="demo-section-pad--big"
 		layoutType="constrained"
 		layoutContentSize="760px"
 	>

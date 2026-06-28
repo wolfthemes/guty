@@ -1,11 +1,11 @@
 <?php
 /**
  * Title: Services Project CTA
- * Slug: seijaku-fse/services-project-cta
+ * Slug: guty-demo/services-project-cta
  * Description: A dark centered call to action for project enquiries.
  * Categories: call-to-action, services
  *
- * @package SeijakuFSE
+ * @package GutyDemo
  */
 
 ?>
@@ -15,11 +15,11 @@
 	<!-- wp:heading {"level":2,"textAlign":"center"} -->
 	<h2 class="wp-block-heading has-text-align-center">Need to talk about your project?</h2>
 	<!-- /wp:heading -->
-	<!-- wp:paragraph {"align":"center","className":"wolf-tagline"} -->
-	<p class="has-text-align-center wolf-tagline">Share what you are building and what you need help with. You will get clear next steps before any custom work begins.</p>
+	<!-- wp:paragraph {"align":"center","className":"demo-tagline"} -->
+	<p class="has-text-align-center demo-tagline">Share what you are building and what you need help with. You will get clear next steps before any custom work begins.</p>
 	<!-- /wp:paragraph -->
-	<!-- wp:buttons {"className":"wolf-hero__actions wolf-btn-lg","layout":{"type":"flex","justifyContent":"center"}} -->
-	<div class="wp-block-buttons wolf-hero__actions wolf-btn-lg">
+	<!-- wp:buttons {"className":"demo-hero__actions demo-btn-lg","layout":{"type":"flex","justifyContent":"center"}} -->
+	<div class="wp-block-buttons demo-hero__actions demo-btn-lg">
 		<!-- wp:button -->
 		<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact">Contact us</a></div>
 		<!-- /wp:button -->

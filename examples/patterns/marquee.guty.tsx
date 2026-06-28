@@ -1,14 +1,14 @@
 // @guty pattern
 // title: Marquee
-// slug: seijaku-fse/marquee
+// slug: guty-demo/marquee
 // categories: banner
-// package: SeijakuFSE
+// package: GutyDemo
 
 export default (
 	<Page>
 		<Block
-			name="wolf-blocks/marquee"
-			text={` WolfThemes <span class="wolf-blocks-marquee__item-separator">✦</span> Premium WordPress Themes <span class="wolf-blocks-marquee__item-separator">✦</span> `}
+			name="demo-blocks/marquee"
+			text={` Example Studio <span class="demo-blocks-marquee__item-separator">✦</span> Example Project Pages <span class="demo-blocks-marquee__item-separator">✦</span> `}
 			direction="left"
 			animationDuration={30}
 			mt="0"

@@ -1,17 +1,17 @@
 <?php
 /**
  * Title: Services Process
- * Slug: seijaku-fse/services-process
+ * Slug: guty-demo/services-process
  * Description: A dark four-step process section for service delivery.
  * Categories: columns, services
  *
- * @package SeijakuFSE
+ * @package GutyDemo
  */
 
 ?>
 
-<!-- wp:group {"tagName":"section","className":"wolf-services\u002d\u002dprocess is-dark has-texture","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10"}}},"layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
-<section class="wp-block-group alignfull wolf-services--process is-dark has-texture" style="padding-top:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10)">
+<!-- wp:group {"tagName":"section","className":"demo-services\u002d\u002dprocess is-dark has-texture","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|10","bottom":"var:preset|spacing|10"}}},"layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
+<section class="wp-block-group alignfull demo-services--process is-dark has-texture" style="padding-top:var(--wp--preset--spacing--10);padding-bottom:var(--wp--preset--spacing--10)">
 	<!-- wp:columns -->
 	<div class="wp-block-columns">
 		<!-- wp:column -->
@@ -49,7 +49,7 @@
 			<h3 class="wp-block-heading has-lg-font-size">Installation Begins</h3>
 			<!-- /wp:heading -->
 			<!-- wp:paragraph -->
-			<p>The theme, plugins, and selected setup tasks are handled.</p>
+			<p>The example, plugins, and selected setup tasks are handled.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:column -->

@@ -1,24 +1,18 @@
 <?php
 /**
  * Title: Stats
- * Slug: seijaku-fse/stats
+ * Slug: guty-demo/stats
  * Categories: numbers
  *
- * @package SeijakuFSE
+ * @package GutyDemo
  */
 
 ?>
 
-<!-- wp:group {"className":"wolf-stats-band is-dark has-texture"} -->
-<div class="wp-block-group wolf-stats-band is-dark has-texture">
-	<!-- wp:wolf-blocks/stats-counter {"title":"in Sales","endNumber":2,"prefix":"$","suffix":"M+"} -->
-	<div class="wp-block-wolf-blocks-stats-counter wolf-blocks-stats-counter"><div class="wolf-blocks-stats-counter__number"><span class="wolf-blocks-stats-counter__prefix">$</span><span class="wolf-blocks-stats-counter__value">2</span><span class="wolf-blocks-stats-counter__suffix">M+</span></div><p class="wolf-blocks-stats-counter__title">in Sales</p></div>
-	<!-- /wp:wolf-blocks/stats-counter -->
-	<!-- wp:wolf-blocks/stats-counter {"title":"Years Experience","endNumber":14,"suffix":"y"} -->
-	<div class="wp-block-wolf-blocks-stats-counter wolf-blocks-stats-counter"><div class="wolf-blocks-stats-counter__number"><span class="wolf-blocks-stats-counter__prefix"></span><span class="wolf-blocks-stats-counter__value">14</span><span class="wolf-blocks-stats-counter__suffix">y</span></div><p class="wolf-blocks-stats-counter__title">Years Experience</p></div>
-	<!-- /wp:wolf-blocks/stats-counter -->
-	<!-- wp:wolf-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} -->
-	<div class="wp-block-wolf-blocks-stats-counter wolf-blocks-stats-counter"><div class="wolf-blocks-stats-counter__number"><span class="wolf-blocks-stats-counter__prefix"></span><span class="wolf-blocks-stats-counter__value">35</span><span class="wolf-blocks-stats-counter__suffix">k</span></div><p class="wolf-blocks-stats-counter__title">Items Sold</p></div>
-	<!-- /wp:wolf-blocks/stats-counter -->
+<!-- wp:group {"className":"demo-stats-band is-dark has-texture"} -->
+<div class="wp-block-group demo-stats-band is-dark has-texture">
+	<!-- wp:demo-blocks/stats-counter {"title":"in Sales","endNumber":2,"prefix":"$","suffix":"M+"} /-->
+	<!-- wp:demo-blocks/stats-counter {"title":"Years Experience","endNumber":14,"suffix":"y"} /-->
+	<!-- wp:demo-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} /-->
 </div>
 <!-- /wp:group -->

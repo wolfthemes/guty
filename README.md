@@ -2,6 +2,9 @@
 
 Minimal TypeScript CLI that compiles a narrow TSX-like Gutenberg structure into WordPress block markup.
 
+> [!WARNING]
+> Guty is in active development and is not production ready. APIs, output, and supported blocks may change without notice. Use at your own risk.
+
 ## Commands
 
 Compile the TypeScript package into `build/`:
@@ -116,7 +119,7 @@ props) and contains `NavigationLink` (void; `label`, `url`, `opensInNewTab`) and
 close the HTML comment) — this is expected and round-trips on parse.
 
 ```tsx
-<Header className="wolf-header" align="full">
+<Header className="site-header" align="full">
   <Container layout={{ type: "flex", justifyContent: "space-between" }}>
     <SiteLogo width={120} isLink />
     <Navigation overlayMenu="mobile">
@@ -128,33 +131,33 @@ close the HTML comment) — this is expected and round-trips on parse.
 ```
 
 `Block` is the generic escape hatch for any registered block that doesn't have a
-dedicated element (including third-party blocks like `wolf-store/*`). The `name`
+dedicated element (including third-party blocks like `demo-store/*`). The `name`
 prop is the namespaced block name; every other prop becomes a block attribute,
 in the order written. No children renders a self-closing block; children render
 a wrapperless container:
 
 ```tsx
-<Block name="wolf-store/theme-index" perPage={12} pagination="none" orderby="featured" />
+<Block name="demo-store/item-index" perPage={12} pagination="none" orderby="featured" />
 ```
 
 compiles to:
 
 ```html
-<!-- wp:wolf-store/theme-index {"perPage":12,"pagination":"none","orderby":"featured"} /-->
+<!-- wp:demo-store/item-index {"perPage":12,"pagination":"none","orderby":"featured"} /-->
 ```
 
 ```tsx
-<Block name="wolf-store/grid" columns={3}>
-  <Block name="wolf-store/card" id={1} />
+<Block name="demo-store/grid" columns={3}>
+  <Block name="demo-store/card" id={1} />
 </Block>
 ```
 
 compiles to:
 
 ```html
-<!-- wp:wolf-store/grid {"columns":3} -->
-<!-- wp:wolf-store/card {"id":1} /-->
-<!-- /wp:wolf-store/grid -->
+<!-- wp:demo-store/grid {"columns":3} -->
+<!-- wp:demo-store/card {"id":1} /-->
+<!-- /wp:demo-store/grid -->
 ```
 
 (`name` is reserved and never emitted as an attribute.)
@@ -164,7 +167,7 @@ output instead of requiring pasted HTML. Point the CLI at one or more block
 source roots that contain `block.json` + sibling `save.js` files:
 
 ```bash
-guty build examples --out dist --blocks ../../plugins/wolf-blocks/src
+guty build examples --out dist --blocks ../../plugins/demo-blocks/src
 ```
 
 You can also set block roots in `guty.config.json` in either the current
@@ -172,7 +175,7 @@ working directory or the input root:
 
 ```json
 {
-  "blocks": ["../../plugins/wolf-blocks/src"]
+  "blocks": ["../../plugins/demo-blocks/src"]
 }
 ```
 
@@ -180,8 +183,8 @@ Then author the block with attributes only:
 
 ```tsx
 <Block
-  name="wolf-blocks/marquee"
-  text="WolfThemes <span>Premium</span>"
+  name="demo-blocks/marquee"
+  text="Example Studio <span>Demo</span>"
   direction="left"
   animationDuration={30}
   class="my-class"
@@ -212,8 +215,8 @@ If you want to bypass real-save rendering entirely, pass a single raw HTML
 string child — it is emitted verbatim between the block comments:
 
 ```tsx
-<Block name="wolf-blocks/marquee" direction="left">
-  {`<div class="wp-block-wolf-blocks-marquee">…</div>`}
+<Block name="demo-blocks/marquee" direction="left">
+  {`<div class="wp-block-demo-blocks-marquee">...</div>`}
 </Block>
 ```
 

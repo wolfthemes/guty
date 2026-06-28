@@ -1,17 +1,17 @@
 <?php
 /**
  * Title: Contact Options
- * Slug: seijaku-fse/contact-options
+ * Slug: guty-demo/contact-options
  * Description: Clear contact paths for services, questions, support, and general requests.
  * Categories: contact, columns
  *
- * @package SeijakuFSE
+ * @package GutyDemo
  */
 
 ?>
 
-<!-- wp:group {"tagName":"section","backgroundColor":"base-2","className":"wolf-contact-options wolf-section-pad\u002d\u002dbig","align":"full","layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
-<section class="wp-block-group alignfull has-base-2-background-color has-background wolf-contact-options wolf-section-pad--big">
+<!-- wp:group {"tagName":"section","backgroundColor":"base-2","className":"demo-contact-options demo-section-pad\u002d\u002dbig","align":"full","layout":{"type":"constrained","contentSize":"var(\u002d\u002dwp\u002d\u002dstyle\u002d\u002dglobal\u002d\u002dwide-size)"}} -->
+<section class="wp-block-group alignfull has-base-2-background-color has-background demo-contact-options demo-section-pad--big">
 	<!-- wp:columns -->
 	<div class="wp-block-columns">
 		<!-- wp:column -->
@@ -37,7 +37,7 @@
 			<h2 class="wp-block-heading has-lg-font-size">Presale Questions</h2>
 			<!-- /wp:heading -->
 			<!-- wp:paragraph -->
-			<p>Ask about theme features, compatibility, licensing, or choosing the right theme.</p>
+			<p>Ask about example features, compatibility, licensing, or choosing the right example.</p>
 			<!-- /wp:paragraph -->
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|6"}}}} -->
 			<div class="wp-block-buttons" style="margin-bottom:var(--wp--preset--spacing--6)">
@@ -55,10 +55,10 @@
 		<!-- wp:column -->
 		<div class="wp-block-column">
 			<!-- wp:heading {"level":2,"fontSize":"lg"} -->
-			<h2 class="wp-block-heading has-lg-font-size">Theme Support</h2>
+			<h2 class="wp-block-heading has-lg-font-size">Example Support</h2>
 			<!-- /wp:heading -->
 			<!-- wp:paragraph -->
-			<p>For help with an existing WolfThemes product, include your theme name and purchase details.</p>
+			<p>For help with an existing Example Studio product, include your project name and project details.</p>
 			<!-- /wp:paragraph -->
 			<!-- wp:buttons {"style":{"spacing":{"margin":{"bottom":"var:preset|spacing|6"}}}} -->
 			<div class="wp-block-buttons" style="margin-bottom:var(--wp--preset--spacing--6)">

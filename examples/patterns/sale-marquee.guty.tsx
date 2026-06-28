@@ -1,13 +1,13 @@
 // @guty pattern
 // title: Sale Marquee
-// slug: seijaku-fse/sale-marquee
+// slug: guty-demo/sale-marquee
 // categories: banner, call-to-action
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
 	<Block
-		name="wolf-blocks/marquee"
-		text={` LAUNCH OFFER <span class="wolf-blocks-marquee__item-separator">✦</span> 20% OFF STOREWIDE <span class="wolf-blocks-marquee__item-separator">✦</span> LIMITED TIME ONLY <span class="wolf-blocks-marquee__item-separator">✦</span> `}
+		name="demo-blocks/marquee"
+		text={` LAUNCH OFFER <span class="demo-blocks-marquee__item-separator">✦</span> 20% OFF STOREWIDE <span class="demo-blocks-marquee__item-separator">✦</span> LIMITED TIME ONLY <span class="demo-blocks-marquee__item-separator">✦</span> `}
 		direction="left"
 		animationDuration={30}
 		mt="0"

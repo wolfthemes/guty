@@ -1,14 +1,14 @@
 // @guty pattern
 // title: Services Process
-// slug: seijaku-fse/services-process
+// slug: guty-demo/services-process
 // categories: columns, services
 // description: A dark four-step process section for service delivery.
-// package: SeijakuFSE
+// package: GutyDemo
 
 <Page>
 	<Section
 		align="full"
-		className="wolf-services--process is-dark has-texture"
+		className="demo-services--process is-dark has-texture"
 		pt={10}
 		pb={10}
 		layoutType="constrained"
@@ -28,7 +28,7 @@
 			<Column>
 				<Paragraph fontSize="small">03</Paragraph>
 				<Heading level={3} mt="0" fontSize="lg">Installation Begins</Heading>
-				<Paragraph mt={3}>The theme, plugins, and selected setup tasks are handled.</Paragraph>
+				<Paragraph mt={3}>The example, plugins, and selected setup tasks are handled.</Paragraph>
 			</Column>
 			<Column>
 				<Paragraph fontSize="small">04</Paragraph>
