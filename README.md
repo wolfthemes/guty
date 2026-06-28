@@ -59,16 +59,14 @@ Supported elements:
 Example input:
 
 ```tsx
-export default (
-  <Page>
-    <Section>
-      <Container>
-        <Heading level={1}>Welcome</Heading>
-        <Paragraph>Hello from Guty.</Paragraph>
-      </Container>
-    </Section>
-  </Page>
-);
+<Page>
+  <Section>
+    <Container>
+      <Heading level={1}>Welcome</Heading>
+      <Paragraph>Hello from Guty.</Paragraph>
+    </Container>
+  </Section>
+</Page>
 ```
 
 `Pattern` is a void element that references a registered block pattern by slug.
@@ -270,9 +268,7 @@ Pattern files must include leading Guty metadata comments before the exported TS
 // viewportWidth: 1400
 // package: ThemeName
 
-export default (
-  <Page>{/* ... */}</Page>
-);
+<Page>{/* ... */}</Page>
 ```
 
 Supported metadata keys: `title` and `slug` (required), plus `description`,
