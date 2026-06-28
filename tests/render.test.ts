@@ -53,7 +53,7 @@ async function createFixtureBlockSource(root: string): Promise<string> {
         supports: {
           align: ["wide", "full"],
           className: true,
-          spacing: { margin: true, padding: true },
+          spacing: { margin: ["top", "bottom"], padding: true },
           typography: { fontSize: true, fontFamily: true },
         },
       },
@@ -72,6 +72,8 @@ async function createFixtureBlockSource(root: string): Promise<string> {
       "  const blockProps = useBlockProps.save({",
       '    className: "fixture-marquee",',
       '    style: { "--fixture-duration": `${attributes.animationDuration}s` },',
+      '    "data-duration": attributes.animationDuration,',
+      '    "data-direction": attributes.direction,',
       "  });",
       "",
       "  return (",
@@ -947,6 +949,8 @@ describe("Block (generic custom blocks)", () => {
       expect(html).toContain(
         'style="--fixture-duration:30s;margin-top:var(--wp--preset--spacing--40);padding-top:2rem;padding-bottom:2rem;font-style:italic"',
       );
+      expect(html).toContain('data-duration="30"');
+      expect(html).toContain('data-direction="left"');
       expect(html).toContain('<div class="fixture-track fixture-track--left">');
       expect(html).toContain('<span class="fixture-item">Wolf<span class="accent">Themes</span></span>');
     } finally {
@@ -1425,7 +1429,7 @@ describe("buildDirectory", () => {
 
 			expect(php).toContain('<!-- wp:test-suite/marquee {"text":"Wolf\\u003cspan\\u003eTheme\\u003c/span\\u003e","direction":"left","animationDuration":30,"className":"my-class","style":{"spacing":{"margin":{"top":"var:preset|spacing|40"}}}} -->');
 			expect(php).toContain(
-				'<div class="wp-block-test-suite-marquee fixture-marquee my-class" style="--fixture-duration:30s;margin-top:var(--wp--preset--spacing--40)">',
+				'<div class="wp-block-test-suite-marquee fixture-marquee my-class" style="--fixture-duration:30s;margin-top:var(--wp--preset--spacing--40)" data-duration="30" data-direction="left">',
 			);
 			expect(php).toContain('<span class="fixture-item">Wolf<span>Theme</span></span>');
 			expect(php).toContain('<!-- wp:test-suite/unregistered {"foo":"bar"} /-->');

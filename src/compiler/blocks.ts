@@ -21,7 +21,7 @@ interface BlockMetadata {
 interface BlockSupports {
   align?: boolean | string[];
   className?: boolean;
-  spacing?: boolean | { margin?: boolean; padding?: boolean };
+  spacing?: boolean | { margin?: boolean | string[]; padding?: boolean | string[] };
   typography?: boolean | { fontSize?: boolean; fontFamily?: boolean };
 }
 
@@ -67,6 +67,7 @@ function supportsAlign(support: BlockSupports["align"], value: unknown): value i
 function supportsSpacingAxis(
   support: BlockSupports["spacing"],
   axis: "margin" | "padding",
+  side: (typeof SPACING_SIDES)[number],
 ): boolean {
   if (!support) {
     return false;
@@ -76,7 +77,9 @@ function supportsSpacingAxis(
     return true;
   }
 
-  return support[axis] === true;
+  const axisSupport = support[axis];
+
+  return axisSupport === true || (Array.isArray(axisSupport) && axisSupport.includes(side));
 }
 
 function supportsTypographyValue(
@@ -103,13 +106,15 @@ function supportsTypographyValue(
 function computeBlockProps(
   metadata: BlockMetadata,
   attributes: Record<string, unknown>,
-  passed: { className?: string; style?: Record<string, unknown> } = {},
-): { className: string; style?: Record<string, unknown> } {
+  passed: Record<string, unknown> = {},
+): Record<string, unknown> & { className: string } {
   const supports = metadata.supports ?? {};
   const classes = [`wp-block-${metadata.name.replace("/", "-")}`];
+  const passedClassName = typeof passed.className === "string" ? passed.className : undefined;
+  const passedStyle = asRecord(passed.style);
 
-  if (passed.className) {
-    classes.push(passed.className);
+  if (passedClassName) {
+    classes.push(passedClassName);
   }
 
   if (supports.className !== false && typeof attributes.className === "string") {
@@ -128,18 +133,18 @@ function computeBlockProps(
     classes.push(`has-${attributes.fontFamily}-font-family`);
   }
 
-  const style: Record<string, unknown> = { ...(passed.style ?? {}) };
+  const style: Record<string, unknown> = { ...(passedStyle ?? {}) };
   const blockStyle = asRecord(attributes.style);
   const spacing = asRecord(blockStyle?.spacing);
 
   for (const axis of ["margin", "padding"] as const) {
     const sides = asRecord(spacing?.[axis]);
-    if (!sides || !supportsSpacingAxis(supports.spacing, axis)) {
+    if (!sides) {
       continue;
     }
 
     for (const side of SPACING_SIDES) {
-      if (sides[side] !== undefined) {
+      if (sides[side] !== undefined && supportsSpacingAxis(supports.spacing, axis, side)) {
         style[`${axis}${capitalize(side)}`] = cssValue(sides[side]);
       }
     }
@@ -153,7 +158,15 @@ function computeBlockProps(
   }
 
   const className = classes.join(" ");
-  return Object.keys(style).length > 0 ? { className, style } : { className };
+  const props: Record<string, unknown> & { className: string } = { ...passed, className };
+
+  if (Object.keys(style).length > 0) {
+    props.style = style;
+  } else {
+    delete props.style;
+  }
+
+  return props;
 }
 
 function instantiateSave(jsSource: string, fileName: string, dir: string, metadata: BlockMetadata): BlockEntry {
