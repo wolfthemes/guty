@@ -104,23 +104,27 @@ export interface CommonBlockProps {
   layout?: BlockLayout;
 }
 
-export interface HeadingProps {
-  level?: 1 | 2 | 3 | 4 | 5 | 6;
-  className?: string;
-  textAlign?: "left" | "center" | "right";
-  fontSize?: string;
-  style?: Record<string, unknown>;
+/** Spacing sugar shared by all block-level elements. */
+export interface SpacingProps {
   p?: string | number; px?: string | number; py?: string | number;
   pt?: string | number; pr?: string | number; pb?: string | number; pl?: string | number;
   m?: string | number; mx?: string | number; my?: string | number;
   mt?: string | number; mr?: string | number; mb?: string | number; ml?: string | number;
 }
 
+export interface HeadingProps extends SpacingProps {
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+  className?: string;
+  textAlign?: "left" | "center" | "right";
+  fontSize?: string;
+  style?: Record<string, unknown>;
+}
+
 export interface PatternProps {
   slug: string;
 }
 
-export interface ParagraphProps {
+export interface ParagraphProps extends SpacingProps {
   className?: string;
   align?: "left" | "center" | "right";
   textAlign?: "left" | "center" | "right";
@@ -159,13 +163,13 @@ export interface NavigationProps extends CommonBlockProps {
   overlayMenu?: "mobile" | "always" | "never";
 }
 
-export interface ColumnsProps {
+export interface ColumnsProps extends SpacingProps {
   className?: string;
   verticalAlignment?: "top" | "center" | "bottom";
   style?: Record<string, unknown>;
 }
 
-export interface ColumnProps {
+export interface ColumnProps extends SpacingProps {
   className?: string;
   width?: string;
   verticalAlignment?: "top" | "center" | "bottom";
@@ -178,7 +182,7 @@ export interface NavigationLinkProps {
   opensInNewTab?: boolean;
 }
 
-export interface ButtonProps {
+export interface ButtonProps extends SpacingProps {
   url?: string;
   className?: string;
   linkTarget?: string;
@@ -198,7 +202,7 @@ export interface CoverProps extends CommonBlockProps {
   minHeightUnit?: "px" | "vh" | "vw" | "em" | "rem" | "%" | string;
 }
 
-export interface ImageProps {
+export interface ImageProps extends SpacingProps {
   className?: string;
   align?: "left" | "center" | "right" | "wide" | "full";
   src?: string;
@@ -212,11 +216,11 @@ export interface ImageProps {
   style?: Record<string, unknown>;
 }
 
-export interface SpacerProps {
+export interface SpacerProps extends SpacingProps {
   height?: string;
 }
 
-export interface ListProps {
+export interface ListProps extends SpacingProps {
   className?: string;
 }
 

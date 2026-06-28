@@ -552,6 +552,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       }
 
       readPlainObjectAttr(node, attrs, "style");
+      mergeSpacingSugar(node, attrs);
 
       return {
         blockName: "core/columns",
@@ -587,6 +588,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       }
 
       readPlainObjectAttr(node, attrs, "layout");
+      mergeSpacingSugar(node, attrs);
 
       return {
         blockName: "core/column",
@@ -710,6 +712,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       readStringAttr(node, attrs, "className");
       readPlainObjectAttr(node, attrs, "style");
       readStringAttr(node, attrs, "fontSize");
+      mergeSpacingSugar(node, attrs);
 
       return {
         blockName: "core/paragraph",
@@ -886,6 +889,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       const rel = typeof node.props.rel === "string" ? ` rel="${escapeHtml(node.props.rel)}"` : "";
       const innerHTML = `<div class="${wrapperClass}"><a class="wp-block-button__link wp-element-button"${href}${target}${rel}>${text}</a></div>`;
 
+      mergeSpacingSugar(node, attrs);
+
       return {
         blockName: "core/button",
         attrs,
@@ -943,6 +948,8 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         attrs[key] = value;
       }
 
+      mergeSpacingSugar(node, attrs);
+
       return {
         blockName: "core/image",
         attrs,
@@ -957,6 +964,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
 
       const attrs: Record<string, unknown> = {};
       readStringAttr(node, attrs, "height");
+      mergeSpacingSugar(node, attrs);
 
       return {
         blockName: "core/spacer",
@@ -968,6 +976,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
     case "List": {
       const attrs: Record<string, unknown> = {};
       readStringAttr(node, attrs, "className");
+      mergeSpacingSugar(node, attrs);
 
       return commonContainerBlock(node, ctx, "core/list", attrs);
     }

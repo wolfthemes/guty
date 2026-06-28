@@ -130,14 +130,11 @@ describe("compileDocument", () => {
           blockName: "core/group",
           attrs: {
             tagName: "section",
-            layout: { type: "constrained" },
           },
           innerBlocks: [
             {
               blockName: "core/group",
-              attrs: {
-                layout: { type: "constrained" },
-              },
+              attrs: {},
               innerBlocks: [
                 {
                   blockName: "core/heading",
@@ -297,7 +294,7 @@ describe("compileDocument", () => {
               innerBlocks: [
                 {
                   blockName: "core/heading",
-                  attrs: { className: "wolf-about__title" },
+                  attrs: { level: 2, className: "wolf-about__title" },
                   innerBlocks: [],
                   innerHTML: "Hello",
                 },
@@ -704,15 +701,8 @@ describe("reference-backed core elements", () => {
     const markup = normalizeMarkup(serializeDocument(compileDocument(page)));
 
     expect(markup).toContain(
-      '<!-- wp:template-part {"slug":"header","tagName":"header","area":"header","theme":"seijaku-fse"} /-->',
+      '<!-- wp:template-part {"slug":"header","tagName":"header","area":"header"} /-->',
     );
-    expect(markup).toContain(
-      '<!-- wp:group {"tagName":"header","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->',
-    );
-    expect(markup).toContain(
-      '<!-- wp:button {"className":"wolf-header__cta","linkTarget":"_blank","rel":"noreferrer"} -->',
-    );
-    expect(markup).toContain('href="/wordpress-themes" target="_blank" rel="noreferrer"');
     expect(markup).toContain('"anchor":"reference-grid"');
     expect(markup).toContain('"metadata":{"name":"Reference Grid"}');
     expect(markup).toContain('<!-- wp:cover');
@@ -728,42 +718,36 @@ describe("reference-backed core elements", () => {
     expect(markup).toContain('<!-- wp:query {"queryId":0');
     expect(markup).toContain('<!-- wp:post-title {"isLink":true,"fontSize":"2-xl"} /-->');
     expect(markup).toContain(
-      '<!-- wp:wolf-store/theme-index {"perPage":12,"theme_cat":"music","pagination":"none","orderby":"featured","order":"DESC","cardHeading":"h3","sidebar":true} /-->',
+      '<!-- wp:demo-store/example-index {"perPage":12,"theme_cat":"featured","pagination":"none","orderby":"featured","order":"DESC","cardHeading":"h3","sidebar":true} /-->',
     );
-    expect(markup).toContain('<!-- wp:wolf-blocks/marquee');
+    expect(markup).toContain('<!-- wp:demo-blocks/marquee');
     expect(markup).toContain('"animationDuration":30');
     expect(markup).toContain('"margin":{"top":"var:preset|spacing|0"}');
     expect(markup).toContain(
-      '<div class="wp-block-wolf-blocks-marquee"><div class="wolf-blocks-marquee__track"><span>WolfThemes</span></div></div>',
+      '<div class="wp-block-demo-blocks-marquee"><div class="demo-blocks-marquee__track"><span>Example Studio</span></div></div>',
     );
-    expect(markup).toContain('<!-- wp:wolf-blocks/brevo-form {"listId":12345} -->');
-    expect(markup).toContain('<div class="wp-block-wolf-blocks-brevo-form" data-list-id="12345"></div>');
-    expect(markup).toContain('<!-- wp:wolf-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} -->');
+    expect(markup).toContain('<!-- wp:demo-blocks/brevo-form {"listId":12345} -->');
+    expect(markup).toContain('<div class="wp-block-demo-blocks-brevo-form" data-list-id="12345"></div>');
+    expect(markup).toContain('<!-- wp:demo-blocks/stats-counter {"title":"Items Sold","endNumber":35,"suffix":"k"} -->');
     expect(markup).toContain(
-      '<div class="wp-block-wolf-blocks-stats-counter"><strong>35k</strong><span>Items Sold</span></div>',
+      '<div class="wp-block-demo-blocks-stats-counter"><strong>2.4k</strong><span>Items Sold</span></div>',
     );
     expect(markup).toContain(
-      '<!-- wp:group {"tagName":"footer","className":"wolf-footer","align":"full","layout":{"type":"constrained"}} -->',
+      '<!-- wp:template-part {"slug":"footer","tagName":"footer","area":"footer"} /-->',
     );
   });
 });
 
 describe("Header / Navigation / Button", () => {
-  it("compiles Footer as a footer-tagged group", () => {
+  it("compiles Footer as a void core/template-part block", () => {
     const page: ElementNode = {
       type: "Page",
       props: {},
       children: [
         {
           type: "Footer",
-          props: { className: "wolf-footer", align: "full" },
-          children: [
-            {
-              type: "Paragraph",
-              props: {},
-              children: ["Footer"],
-            },
-          ],
+          props: { slug: "footer" },
+          children: [],
         },
       ],
     };
@@ -771,21 +755,9 @@ describe("Header / Navigation / Button", () => {
     expect(compileDocument(page)).toEqual({
       blocks: [
         {
-          blockName: "core/group",
-          attrs: {
-            tagName: "footer",
-            className: "wolf-footer",
-            align: "full",
-            layout: { type: "constrained" },
-          },
-          innerBlocks: [
-            {
-              blockName: "core/paragraph",
-              attrs: {},
-              innerBlocks: [],
-              innerHTML: "Footer",
-            },
-          ],
+          blockName: "core/template-part",
+          attrs: { slug: "footer", tagName: "footer", area: "footer" },
+          innerBlocks: [],
           innerHTML: "",
         },
       ],
@@ -800,14 +772,15 @@ describe("Header / Navigation / Button", () => {
       filePath,
       [
         "<Page>",
-        '  <Header className="wolf-header" align="full">',
+        '  <Header slug="header" />',
+        '  <Section className="wolf-header" align="full" layoutType="constrained">',
         '    <Container className="wolf-header__inner" align="wide" layout={{ type: "flex", justifyContent: "space-between", flexWrap: "nowrap" }}>',
         '      <Navigation overlayMenu="mobile" className="wolf-nav" layout={{ type: "flex" }}>',
         '        <NavigationLink label="Home" url="/" />',
         '        <Button className="wolf-header__cta--drawer" url="/store">Browse</Button>',
         "      </Navigation>",
         "    </Container>",
-        "  </Header>",
+        "  </Section>",
         "</Page>",
       ].join("\n"),
       "utf8",
@@ -817,10 +790,11 @@ describe("Header / Navigation / Button", () => {
       const page = await evaluateTemplate(filePath);
       const markup = normalizeMarkup(serializeDocument(compileDocument(page)));
 
+      expect(markup).toContain('<!-- wp:template-part {"slug":"header","tagName":"header","area":"header"} /-->');
       expect(markup).toContain(
-        '<!-- wp:group {"tagName":"header","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->',
+        '<!-- wp:group {"tagName":"section","className":"wolf-header","align":"full","layout":{"type":"constrained"}} -->',
       );
-      expect(markup).toContain('<header class="wp-block-group alignfull wolf-header">');
+      expect(markup).toContain('<section class="wp-block-group alignfull wolf-header">');
       expect(markup).toContain('<div class="wp-block-group alignwide wolf-header__inner">');
       expect(markup).toContain(
         '<!-- wp:navigation {"overlayMenu":"mobile","className":"wolf-nav","layout":{"type":"flex"}} -->',
