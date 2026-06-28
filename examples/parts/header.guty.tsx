@@ -1,33 +1,24 @@
 <Page>
-	<Pattern slug="guty-demo/sale-marquee" />
 	<Container
 		tagName="header"
-		className="demo-header"
 		align="full"
+		className="site-header"
 		layoutType="constrained"
 	>
 		<Container
 			align="wide"
-			className="demo-header__inner"
+			className="site-header__inner"
 			layoutType="flex"
 			layoutJustifyContent="space-between"
 			layoutFlexWrap="nowrap"
 		>
-			<Pattern slug="guty-demo/logo-mark-dark" />
-			<Navigation
-				overlayMenu="mobile"
-				className="demo-nav"
-				layoutType="flex"
-				layoutJustifyContent="right"
-				layoutFlexWrap="wrap"
-			>
+			<SiteLogo width={120} isLink />
+			<Navigation overlayMenu="mobile" className="site-nav">
 				<NavigationLink label="Home" url="/" />
-				<NavigationLink label="Projects" url="/examples" />
-				<NavigationLink label="Services" url="/services" />
-				<NavigationLink label="Contact" url="/contact" />
-				<Button className="demo-header__cta demo-header__cta--drawer" url="/examples">View Examples</Button>
+				<NavigationLink label="Work" url="/work" />
+				<NavigationLink label="About" url="/about" />
+				<Button className="site-header__cta" url="/contact">Contact</Button>
 			</Navigation>
-			<Button className="demo-header__cta" url="/examples">View Examples</Button>
 		</Container>
 	</Container>
 </Page>
