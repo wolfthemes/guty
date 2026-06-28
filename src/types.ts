@@ -110,6 +110,10 @@ export interface HeadingProps {
   textAlign?: "left" | "center" | "right";
   fontSize?: string;
   style?: Record<string, unknown>;
+  p?: string | number; px?: string | number; py?: string | number;
+  pt?: string | number; pr?: string | number; pb?: string | number; pl?: string | number;
+  m?: string | number; mx?: string | number; my?: string | number;
+  mt?: string | number; mr?: string | number; mb?: string | number; ml?: string | number;
 }
 
 export interface PatternProps {
@@ -197,11 +201,14 @@ export interface CoverProps extends CommonBlockProps {
 export interface ImageProps {
   className?: string;
   align?: "left" | "center" | "right" | "wide" | "full";
+  src?: string;
+  alt?: string;
   width?: string | number;
   height?: string | number;
   scale?: "cover" | "contain" | string;
   sizeSlug?: string;
   linkDestination?: "none" | "media" | "attachment" | "custom" | string;
+  linkUrl?: string;
   style?: Record<string, unknown>;
 }
 

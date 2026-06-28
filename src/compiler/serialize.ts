@@ -443,9 +443,17 @@ function toRawBlock(node: BlockNode): RawBlockLike {
   }
 
   if (node.blockName === "core/image") {
-    const markup =
-      node.innerHTML ||
-      `<figure class="${getImageClassName(node)}"><img alt=""${renderStyleAttr(getImageStyle(node))}/></figure>`;
+    let markup = node.innerHTML;
+    if (!markup) {
+      // ponytail: src/linkUrl are intentionally raw — they carry PHP expressions like <?php echo esc_url(...); ?>
+      const src = typeof node.attrs.src === "string" ? ` src="${node.attrs.src}"` : "";
+      const altRaw = typeof node.attrs.alt === "string" ? node.attrs.alt : "";
+      const alt = ` alt="${altRaw.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}"`;
+      const img = `<img${src}${alt}${renderStyleAttr(getImageStyle(node))}/>`;
+      const linkUrl = typeof node.attrs.linkUrl === "string" && node.attrs.linkUrl.length > 0 ? node.attrs.linkUrl : undefined;
+      const inner = linkUrl ? `<a href="${linkUrl}">${img}</a>` : img;
+      markup = `<figure class="${getImageClassName(node)}">${inner}</figure>`;
+    }
 
     return {
       blockName: node.blockName,

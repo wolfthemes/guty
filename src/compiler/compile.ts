@@ -509,6 +509,21 @@ function readVerticalAlignment(node: ElementNode, prop: unknown): "top" | "cente
   return prop;
 }
 
+function mergeSpacingSugar(node: ElementNode, attrs: Record<string, unknown>): void {
+  const spacing: { padding?: Record<string, string>; margin?: Record<string, string> } = {};
+  for (const [key, value] of Object.entries(node.props)) {
+    const sugar = SPACING_SUGAR[key];
+    if (!sugar || value === undefined) continue;
+    for (const side of sugar.sides) {
+      (spacing[sugar.axis] ??= {})[side] = spacingValue(value);
+    }
+  }
+  if (!spacing.padding && !spacing.margin) return;
+  const baseStyle = asRecord(attrs.style) ?? {};
+  const baseSpacing = asRecord(baseStyle.spacing) ?? {};
+  attrs.style = { ...baseStyle, spacing: { ...baseSpacing, ...spacing } };
+}
+
 function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
   switch (node.type) {
     case "Page":
@@ -677,6 +692,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       readStringAttr(node, attrs, "className");
       readPlainObjectAttr(node, attrs, "style");
       readStringAttr(node, attrs, "fontSize");
+      mergeSpacingSugar(node, attrs);
 
       return {
         blockName: "core/heading",
@@ -898,9 +914,20 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       const attrs: Record<string, unknown> = {};
       readStringAttr(node, attrs, "className");
       readStringAttr(node, attrs, "align");
+      readStringAttr(node, attrs, "src");
+      // Resolve theme-relative src to get_theme_file_uri() PHP — raw PHP and absolute URLs pass through.
+      if (typeof attrs.src === "string" && !attrs.src.startsWith("<?php") && !/^https?:\/\//.test(attrs.src) && !attrs.src.startsWith("//")) {
+        const stripped = "/" + attrs.src.replace(/^(\.\.\/|\.\/)+/, "").replace(/^\//, "");
+        if (!/^[A-Za-z0-9_\-./]+$/.test(stripped)) {
+          throw new Error(`Image src "${attrs.src}" contains invalid characters. Use a simple relative path like "/assets/images/photo.jpg".`);
+        }
+        attrs.src = `<?php echo esc_url( get_theme_file_uri() . '${stripped}' ); ?>`;
+      }
+      readStringAttr(node, attrs, "alt");
       readStringAttr(node, attrs, "scale");
       readStringAttr(node, attrs, "sizeSlug");
       readStringAttr(node, attrs, "linkDestination");
+      readStringAttr(node, attrs, "linkUrl");
       readPlainObjectAttr(node, attrs, "style");
 
       for (const key of ["width", "height"] as const) {
