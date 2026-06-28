@@ -6,10 +6,20 @@
 		layoutType="constrained"
 	>
 		<Container align="wide" className="wolf-footer__top">
-			<Pattern slug="seijaku-fse/logo-mark-light" />
-			<Paragraph className="wolf-footer__tagline">Themes built to look sharp, move fast, and convert.</Paragraph>
-			<Paragraph fontSize="xs">Subscribe to get updates, fresh releases, and coupon codes straight to your inbox.</Paragraph>
-			<Block name="wolf-blocks/brevo-form" />
+			<Columns className="wolf-footer__top-columns" verticalAlignment="center">
+				<Column className="wolf-footer__brand" width="25%">
+					<Pattern slug="seijaku-fse/logo-mark-light" />
+				</Column>
+
+				<Column className="wolf-footer__tagline-col" width="35%">
+					<Paragraph className="wolf-footer__tagline">Themes built to look sharp, move fast, and convert.</Paragraph>
+				</Column>
+
+				<Column className="wolf-footer__subscribe" width="40%">
+					<Paragraph fontSize="xs">Subscribe to get updates, fresh releases, and coupon codes straight to your inbox.</Paragraph>
+					<Block name="wolf-blocks/brevo-form" listId="3" />
+				</Column>
+			</Columns>
 		</Container>
 
 		<Container align="wide" className="wolf-footer__nav">

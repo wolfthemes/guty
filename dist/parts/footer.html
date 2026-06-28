@@ -2,14 +2,30 @@
 <footer class="wp-block-group alignfull wolf-footer is-dark">
 	<!-- wp:group {"className":"wolf-footer__top","align":"wide"} -->
 	<div class="wp-block-group alignwide wolf-footer__top">
-		<!-- wp:pattern {"slug":"seijaku-fse/logo-mark-light"} /-->
-		<!-- wp:paragraph {"className":"wolf-footer__tagline"} -->
-		<p class="wolf-footer__tagline">Themes built to look sharp, move fast, and convert.</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph {"fontSize":"xs"} -->
-		<p class="has-xs-font-size">Subscribe to get updates, fresh releases, and coupon codes straight to your inbox.</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:wolf-blocks/brevo-form /-->
+		<!-- wp:columns {"className":"wolf-footer__top-columns","verticalAlignment":"center"} -->
+		<div class="wp-block-columns are-vertically-aligned-center wolf-footer__top-columns">
+			<!-- wp:column {"className":"wolf-footer__brand","width":"25%"} -->
+			<div class="wp-block-column wolf-footer__brand" style="flex-basis:25%">
+				<!-- wp:pattern {"slug":"seijaku-fse/logo-mark-light"} /-->
+			</div>
+			<!-- /wp:column -->
+			<!-- wp:column {"className":"wolf-footer__tagline-col","width":"35%"} -->
+			<div class="wp-block-column wolf-footer__tagline-col" style="flex-basis:35%">
+				<!-- wp:paragraph {"className":"wolf-footer__tagline"} -->
+				<p class="wolf-footer__tagline">Themes built to look sharp, move fast, and convert.</p>
+				<!-- /wp:paragraph -->
+			</div>
+			<!-- /wp:column -->
+			<!-- wp:column {"className":"wolf-footer__subscribe","width":"40%"} -->
+			<div class="wp-block-column wolf-footer__subscribe" style="flex-basis:40%">
+				<!-- wp:paragraph {"fontSize":"xs"} -->
+				<p class="has-xs-font-size">Subscribe to get updates, fresh releases, and coupon codes straight to your inbox.</p>
+				<!-- /wp:paragraph -->
+				<!-- wp:wolf-blocks/brevo-form {"listId":"3"} /-->
+			</div>
+			<!-- /wp:column -->
+		</div>
+		<!-- /wp:columns -->
 	</div>
 	<!-- /wp:group -->
 	<!-- wp:group {"className":"wolf-footer__nav","align":"wide"} -->
