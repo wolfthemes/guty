@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { loadBlockRegistry, renderBlockSave } from "../src/compiler/blocks.js";
-import { buildDirectory } from "../src/compiler/build.js";
+import { buildDirectory, watchDirectory } from "../src/compiler/build.js";
 import { compileDocument } from "../src/compiler/compile.js";
 import { evaluateTemplate } from "../src/compiler/evaluate.js";
 import { serializeDocument } from "../src/compiler/serialize.js";
@@ -12,6 +12,23 @@ import type { BlockDocument, ElementNode } from "../src/types.js";
 
 function normalizeMarkup(value: string): string {
   return value.replace(/>\s+</g, "><").trim();
+}
+
+async function waitFor(assertion: () => Promise<void> | void, timeoutMs = 2000): Promise<void> {
+	const startedAt = Date.now();
+	let lastError: unknown;
+
+	while (Date.now() - startedAt < timeoutMs) {
+		try {
+			await assertion();
+			return;
+		} catch (error) {
+			lastError = error;
+			await new Promise((resolve) => setTimeout(resolve, 50));
+		}
+	}
+
+	throw lastError;
 }
 
 async function createFixtureBlockSource(root: string): Promise<string> {
@@ -1302,6 +1319,46 @@ describe("buildDirectory", () => {
 			expect(patternPhp).toContain(" * Viewport Width: 1400");
 			expect(patternPhp).toContain("<!-- wp:heading {\"level\":1} -->");
 		} finally {
+			await rm(root, { recursive: true, force: true });
+		}
+	});
+
+	it("watches templates and rebuilds changed output", async () => {
+		const root = await mkdtemp(path.join(tmpdir(), "guty-test-"));
+		const inputDir = path.join(root, "examples");
+		const outputDir = path.join(root, "dist");
+		const templatePath = path.join(inputDir, "templates", "page.guty.tsx");
+		const outputPath = path.join(outputDir, "templates", "page.html");
+		const templateSource = (heading: string) =>
+			[
+				"export default (",
+				"  <Page>",
+				"    <Section>",
+				"      <Heading level={1}>",
+				`        ${heading}`,
+				"      </Heading>",
+				"    </Section>",
+				"  </Page>",
+				");",
+			].join("\n");
+
+		await mkdir(path.dirname(templatePath), { recursive: true });
+		await writeFile(templatePath, templateSource("Before"), "utf8");
+
+		const watcher = await watchDirectory(inputDir, outputDir, { debounceMs: 10 });
+
+		try {
+			await waitFor(async () => {
+				await expect(readFile(outputPath, "utf8")).resolves.toContain("Before");
+			});
+
+			await writeFile(templatePath, templateSource("After"), "utf8");
+
+			await waitFor(async () => {
+				await expect(readFile(outputPath, "utf8")).resolves.toContain("After");
+			});
+		} finally {
+			watcher.close();
 			await rm(root, { recursive: true, force: true });
 		}
 	});

@@ -28,6 +28,12 @@ Compile examples directly into `dist/` after the package has been built:
 node build/cli.js build examples --out dist
 ```
 
+Watch examples and rebuild changed output after the package has been built:
+
+```bash
+node build/cli.js watch examples --out dist
+```
+
 ## MVP
 
 Supported elements:
@@ -235,6 +241,18 @@ Build command:
 
 ```bash
 guty build examples --out dist
+```
+
+Watch command:
+
+```bash
+guty watch examples --out dist
+```
+
+You can also pass `--watch` to the build command:
+
+```bash
+guty build examples --out dist --watch
 ```
 
 This preserves the directory structure in `dist/`, so `examples/templates/front-page.guty.tsx` becomes `dist/templates/front-page.html`, while `examples/patterns/hero.guty.tsx` becomes `dist/patterns/hero.php`.
