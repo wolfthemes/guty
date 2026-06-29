@@ -729,7 +729,7 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
         blockName: "core/heading",
         attrs,
         innerBlocks: [],
-        innerHTML: expectTextChildren(node),
+        innerHTML: expectRawTextChildren(node),
       };
     }
     case "Paragraph": {
