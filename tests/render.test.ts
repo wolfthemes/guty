@@ -252,6 +252,46 @@ describe("compileDocument", () => {
     } satisfies BlockDocument);
   });
 
+  it("resolves theme-relative media URLs for cover and image blocks", () => {
+    const page: ElementNode = {
+      type: "Page",
+      props: {},
+      children: [
+        {
+          type: "Cover",
+          props: { url: "/assets/images/hero.jpg" },
+          children: [],
+        },
+        {
+          type: "Image",
+          props: { src: "./assets/images/me.jpg" },
+          children: [],
+        },
+      ],
+    };
+
+    expect(compileDocument(page)).toEqual({
+      blocks: [
+        {
+          blockName: "core/cover",
+          attrs: {
+            url: "<?php echo esc_url( get_theme_file_uri() . '/assets/images/hero.jpg' ); ?>",
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+        {
+          blockName: "core/image",
+          attrs: {
+            src: "<?php echo esc_url( get_theme_file_uri() . '/assets/images/me.jpg' ); ?>",
+          },
+          innerBlocks: [],
+          innerHTML: "",
+        },
+      ],
+    } satisfies BlockDocument);
+  });
+
   it("compiles columns and column wrappers with their supported attrs", () => {
     const page: ElementNode = {
       type: "Page",

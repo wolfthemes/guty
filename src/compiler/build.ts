@@ -87,9 +87,9 @@ export async function buildDirectory(
 	return Promise.all(
 		templates.map(async (templatePath) => {
 			const page = await evaluateTemplate(templatePath);
-			const document = compileDocument(page, { renderBlock });
-			const markup = serializeDocument(document);
 			const target = resolveOutputTarget(inputDir, outputDir, templatePath);
+			const document = compileDocument(page, { renderBlock, outputKind: target.kind });
+			const markup = serializeDocument(document);
 			const output = await target.render(markup);
 
 			await mkdir(path.dirname(target.outputPath), { recursive: true });

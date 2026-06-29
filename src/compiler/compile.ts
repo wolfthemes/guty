@@ -3,6 +3,8 @@ import type { BlockDocument, BlockNode, Child, ElementNode } from "../types.js";
 export interface CompileContext {
   // Renders a registered custom block's real save markup; undefined if unknown.
   renderBlock?: (name: string, attributes: Record<string, unknown>) => string | undefined;
+  // The output kind of the file being compiled; used to validate PHP-only features.
+  outputKind?: "template" | "part" | "pattern";
 }
 
 function escapeHtml(value: string): string {
@@ -476,6 +478,28 @@ function readStringAttr(node: ElementNode, attrs: Record<string, unknown>, key: 
   }
 }
 
+function resolveThemeRelativeAssetUrl(node: ElementNode, key: string, value: unknown, ctx: CompileContext): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  // Raw PHP and absolute URLs pass through. Theme-relative paths become get_theme_file_uri() expressions.
+  if (value.startsWith("<?php") || /^https?:\/\//.test(value) || value.startsWith("//")) {
+    return value;
+  }
+
+  if (ctx.outputKind !== "pattern" && ctx.outputKind !== undefined) {
+    throw new Error(`${node.type} ${key}: theme-relative paths (e.g. "${value}") only work in patterns (.php). Use an absolute URL for templates/parts.`);
+  }
+
+  const stripped = "/" + value.replace(/^(\.\.\/|\.\/)+/, "").replace(/^\//, "");
+  if (!/^[A-Za-z0-9_\-./]+$/.test(stripped)) {
+    throw new Error(`${node.type} ${key} "${value}" contains invalid characters. Use a simple relative path like "/assets/images/photo.jpg".`);
+  }
+
+  return `<?php echo esc_url( get_theme_file_uri() . '${stripped}' ); ?>`;
+}
+
 function readNumberAttr(node: ElementNode, attrs: Record<string, unknown>, key: string): void {
   const value = readNumber(node, key, node.props[key]);
   if (value !== undefined) {
@@ -908,6 +932,12 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       const attrs: Record<string, unknown> = {};
 
       readStringAttr(node, attrs, "url");
+      {
+        const url = resolveThemeRelativeAssetUrl(node, "url", attrs.url, ctx);
+        if (url !== undefined) {
+          attrs.url = url;
+        }
+      }
       readNumberAttr(node, attrs, "dimRatio");
       readNumberAttr(node, attrs, "minHeight");
       readStringAttr(node, attrs, "minHeightUnit");
@@ -925,13 +955,11 @@ function compileNode(node: ElementNode, ctx: CompileContext): BlockNode {
       readStringAttr(node, attrs, "className");
       readStringAttr(node, attrs, "align");
       readStringAttr(node, attrs, "src");
-      // Resolve theme-relative src to get_theme_file_uri() PHP — raw PHP and absolute URLs pass through.
-      if (typeof attrs.src === "string" && !attrs.src.startsWith("<?php") && !/^https?:\/\//.test(attrs.src) && !attrs.src.startsWith("//")) {
-        const stripped = "/" + attrs.src.replace(/^(\.\.\/|\.\/)+/, "").replace(/^\//, "");
-        if (!/^[A-Za-z0-9_\-./]+$/.test(stripped)) {
-          throw new Error(`Image src "${attrs.src}" contains invalid characters. Use a simple relative path like "/assets/images/photo.jpg".`);
+      {
+        const src = resolveThemeRelativeAssetUrl(node, "src", attrs.src, ctx);
+        if (src !== undefined) {
+          attrs.src = src;
         }
-        attrs.src = `<?php echo esc_url( get_theme_file_uri() . '${stripped}' ); ?>`;
       }
       readStringAttr(node, attrs, "alt");
       readStringAttr(node, attrs, "scale");
