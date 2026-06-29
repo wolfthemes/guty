@@ -1,2 +1,5 @@
 node_modules
 build/
+graphify-out/
+.claude/
+.agents/
