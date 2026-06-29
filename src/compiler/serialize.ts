@@ -56,6 +56,14 @@ function getGroupTagName(node: BlockNode): string {
   return typeof tagName === "string" && tagName.length > 0 ? (tagName as "section" | "header" | "div") : "div";
 }
 
+function escapeAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function cssValue(value: unknown): string {
   if (typeof value === "string" && value.startsWith("var:")) {
     return `var(--wp--${value.slice(4).split("|").join("--")})`;
@@ -342,8 +350,11 @@ function toRawBlock(node: BlockNode): RawBlockLike {
     const tagName = getGroupTagName(node);
     const className = getGroupClassName(node);
     const style = getGroupStyle(node);
+    const idAttr = typeof node.attrs.anchor === "string" && node.attrs.anchor.length > 0
+      ? ` id="${escapeAttribute(node.attrs.anchor)}"`
+      : "";
     const styleAttr = style ? ` style="${style}"` : "";
-    const openTag = `<${tagName} class="${className}"${styleAttr}>`;
+    const openTag = `<${tagName}${idAttr} class="${className}"${styleAttr}>`;
     const closeTag = `</${tagName}>`;
 
     return {
