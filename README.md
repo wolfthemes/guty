@@ -54,6 +54,10 @@ Supported elements:
 - `Navigation`
 - `NavigationLink`
 - `Button`
+- `List`
+- `ListItem`
+- `Link` (inline, child of `ListItem` only)
+- `Footer`
 - `Block` (generic escape hatch for any registered block)
 
 Example input:
@@ -83,8 +87,14 @@ compiles to:
 <!-- wp:pattern {"slug":"guty/hero"} /-->
 ```
 
-`Header` is a group rendered with `tagName="header"`. Together with `Section`
-and `Container` it accepts the shared group props `className`, `align`
+`Header` is sugar over `core/template-part` with `tagName="header"` and
+`area="header"` pre-set. It requires only a `slug` prop:
+
+```tsx
+<Header slug="header" />
+```
+
+`Section` and `Container` accept the shared group props `className`, `align`
 (`"wide"` | `"full"`), `backgroundColor`, `textColor`, and `layout` (passed
 through to the block, e.g.
 `{ type: "flex", justifyContent: "space-between" }`). Without a `layout` prop
@@ -117,7 +127,7 @@ props) and contains `NavigationLink` (void; `label`, `url`, `opensInNewTab`) and
 close the HTML comment) — this is expected and round-trips on parse.
 
 ```tsx
-<Header className="site-header" align="full">
+<Section className="site-header" align="full">
   <Container layout={{ type: "flex", justifyContent: "space-between" }}>
     <SiteLogo width={120} isLink />
     <Navigation overlayMenu="mobile">
@@ -125,7 +135,28 @@ close the HTML comment) — this is expected and round-trips on parse.
       <Button className="cta" url="/store">Browse</Button>
     </Navigation>
   </Container>
-</Header>
+</Section>
+```
+
+`Footer` is the counterpart to `Header` — sugar over `core/template-part` with
+`tagName="footer"` and `area="footer"` pre-set. It requires only a `slug` prop:
+
+```tsx
+<Footer slug="footer" />
+```
+
+`List` maps to `core/list` and `ListItem` maps to `core/list-item`. `ListItem`
+accepts text children or `Link` inline elements. `Link` is an inline element
+only valid as a child of `ListItem` — it renders to an `<a>` tag in the item's
+innerHTML. Props: `href` (required), `target`, `rel`. Text is passed as
+children:
+
+```tsx
+<List>
+  <ListItem>Plain text item</ListItem>
+  <ListItem><Link href="/about">About</Link></ListItem>
+  <ListItem><Link href="https://example.com" target="_blank" rel="noopener">External</Link></ListItem>
+</List>
 ```
 
 `Block` is the generic escape hatch for any registered block that doesn't have a
